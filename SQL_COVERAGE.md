@@ -108,12 +108,12 @@ Tracking PostgreSQL SQL feature coverage in `src/sql.ohm` / `src/ast.ts`.
 - [x] Inequality: `<>`, `!=`
 - [x] Comparison: `<`, `>`, `<=`, `>=`
 - [x] `IS NULL` / `IS NOT NULL`
-- [ ] `IS TRUE` / `IS FALSE` / `IS UNKNOWN`
-- [ ] `BETWEEN … AND …` / `NOT BETWEEN`
-- [ ] `IN (…)` list / `NOT IN (…)`
+- [x] `IS TRUE` / `IS FALSE` / `IS UNKNOWN`
+- [x] `BETWEEN … AND …` / `NOT BETWEEN`
+- [x] `IN (…)` list / `NOT IN (…)`
 - [ ] `IN (subquery)` / `NOT IN (subquery)`
-- [ ] `LIKE` / `NOT LIKE`
-- [ ] `ILIKE` / `NOT ILIKE` (case-insensitive, PostgreSQL)
+- [x] `LIKE` / `NOT LIKE`
+- [x] `ILIKE` / `NOT ILIKE` (case-insensitive, PostgreSQL)
 - [ ] `SIMILAR TO`
 - [ ] `~`, `~*`, `!~`, `!~*` (regex operators)
 - [ ] `EXISTS (subquery)`

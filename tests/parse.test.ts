@@ -19,21 +19,11 @@ LIMIT 10;
     type: "select",
     distinct: null,
     columns: [
-      { type: "column", expr: { type: "column_expr", kind: "wildcard" } },
-      { type: "column", expr: { type: "column_expr", kind: "simple", name: "foo" } },
-      {
-        type: "column",
-        expr: { type: "column_expr", kind: "qualified", table: "table1", name: "bar" },
-      },
-      {
-        type: "column",
-        expr: { type: "column_expr", kind: "qualified", table: "table1", name: "baz" },
-        alias: { type: "alias", name: "qux" },
-      },
-      {
-        type: "column",
-        expr: { type: "column_expr", kind: "qualified_wildcard", table: "table1" },
-      },
+      { type: "column", expr: wildExpr },
+      { type: "column", expr: colExpr("foo") },
+      { type: "column", expr: colExpr("bar", "table1") },
+      { type: "column", expr: colExpr("baz", "table1"), alias: { type: "alias", name: "qux" } },
+      { type: "column", expr: qualWildExpr("table1") },
     ],
     from: {
       type: "select_from",
@@ -59,7 +49,7 @@ test("parses simple select without limit", () => {
   expect(ast).toEqual({
     type: "select",
     distinct: null,
-    columns: [{ type: "column", expr: { type: "column_expr", kind: "simple", name: "foo" } }],
+    columns: [{ type: "column", expr: colExpr("foo") }],
     from: { type: "select_from", table: { type: "table_ref", name: "bar" } },
     joins: [],
     where: null,
@@ -76,7 +66,7 @@ test("parses table with implicit alias", () => {
   expect(ast).toEqual({
     type: "select",
     distinct: null,
-    columns: [{ type: "column", expr: { type: "column_expr", kind: "simple", name: "a" } }],
+    columns: [{ type: "column", expr: colExpr("a") }],
     from: {
       type: "select_from",
       table: {
@@ -107,7 +97,7 @@ test("is case-insensitive for keywords", () => {
   expect(ast).toEqual({
     type: "select",
     distinct: null,
-    columns: [{ type: "column", expr: { type: "column_expr", kind: "simple", name: "foo" } }],
+    columns: [{ type: "column", expr: colExpr("foo") }],
     from: { type: "select_from", table: { type: "table_ref", name: "bar" } },
     joins: [],
     where: null,
@@ -130,6 +120,15 @@ const colRef = (name: string, table?: string) =>
     kind: "column_ref",
     ref: { type: "column_ref", ...(table ? { table } : {}), name },
   }) as const;
+const colExpr = (name: string, table?: string) =>
+  ({
+    type: "column_expr",
+    kind: "expr",
+    expr: colRef(name, table),
+  }) as const;
+const wildExpr = { type: "column_expr", kind: "wildcard" } as const;
+const qualWildExpr = (table: string) =>
+  ({ type: "column_expr", kind: "qualified_wildcard", table }) as const;
 
 test("parses simple WHERE clause", () => {
   const ast = parseSql("SELECT foo FROM bar WHERE baz = 'hello'");

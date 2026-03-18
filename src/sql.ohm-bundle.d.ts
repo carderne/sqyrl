@@ -47,11 +47,9 @@ export interface SQLActionDict<T> extends BaseActionDict<T> {
   ) => T;
   ColumnEntry_plain?: (this: NonterminalNode, arg0: NonterminalNode) => T;
   ColumnEntry?: (this: NonterminalNode, arg0: NonterminalNode) => T;
-  ColumnExpr_func?: (this: NonterminalNode, arg0: NonterminalNode) => T;
   ColumnExpr_qualifiedWild?: (this: NonterminalNode, arg0: NonterminalNode) => T;
   ColumnExpr_wild?: (this: NonterminalNode, arg0: NonterminalNode) => T;
-  ColumnExpr_qualified?: (this: NonterminalNode, arg0: NonterminalNode) => T;
-  ColumnExpr_simple?: (this: NonterminalNode, arg0: NonterminalNode) => T;
+  ColumnExpr_expr?: (this: NonterminalNode, arg0: NonterminalNode) => T;
   ColumnExpr?: (this: NonterminalNode, arg0: NonterminalNode) => T;
   FuncCall?: (
     this: NonterminalNode,
@@ -71,12 +69,6 @@ export interface SQLActionDict<T> extends BaseActionDict<T> {
     arg0: NonterminalNode,
     arg1: TerminalNode,
     arg2: TerminalNode,
-  ) => T;
-  qualifiedName?: (
-    this: NonterminalNode,
-    arg0: NonterminalNode,
-    arg1: TerminalNode,
-    arg2: NonterminalNode,
   ) => T;
   wildcard?: (this: NonterminalNode, arg0: TerminalNode) => T;
   TableRef_aliased?: (
@@ -269,14 +261,61 @@ export interface SQLActionDict<T> extends BaseActionDict<T> {
   ) => T;
   WhereComparison?: (this: NonterminalNode, arg0: NonterminalNode) => T;
   compOp?: (this: NonterminalNode, arg0: TerminalNode) => T;
-  WhereValue_func?: (this: NonterminalNode, arg0: NonterminalNode) => T;
-  WhereValue_string?: (this: NonterminalNode, arg0: NonterminalNode) => T;
-  WhereValue_float?: (this: NonterminalNode, arg0: NonterminalNode) => T;
-  WhereValue_integer?: (this: NonterminalNode, arg0: NonterminalNode) => T;
-  WhereValue_bool?: (this: NonterminalNode, arg0: NonterminalNode) => T;
-  WhereValue_null?: (this: NonterminalNode, arg0: NonterminalNode) => T;
-  WhereValue_columnRef?: (this: NonterminalNode, arg0: NonterminalNode) => T;
   WhereValue?: (this: NonterminalNode, arg0: NonterminalNode) => T;
+  AddExpr_add?: (
+    this: NonterminalNode,
+    arg0: NonterminalNode,
+    arg1: TerminalNode,
+    arg2: NonterminalNode,
+  ) => T;
+  AddExpr_sub?: (
+    this: NonterminalNode,
+    arg0: NonterminalNode,
+    arg1: TerminalNode,
+    arg2: NonterminalNode,
+  ) => T;
+  AddExpr_concat?: (
+    this: NonterminalNode,
+    arg0: NonterminalNode,
+    arg1: TerminalNode,
+    arg2: NonterminalNode,
+  ) => T;
+  AddExpr?: (this: NonterminalNode, arg0: NonterminalNode) => T;
+  MulExpr_mul?: (
+    this: NonterminalNode,
+    arg0: NonterminalNode,
+    arg1: TerminalNode,
+    arg2: NonterminalNode,
+  ) => T;
+  MulExpr_div?: (
+    this: NonterminalNode,
+    arg0: NonterminalNode,
+    arg1: TerminalNode,
+    arg2: NonterminalNode,
+  ) => T;
+  MulExpr_mod?: (
+    this: NonterminalNode,
+    arg0: NonterminalNode,
+    arg1: TerminalNode,
+    arg2: NonterminalNode,
+  ) => T;
+  MulExpr?: (this: NonterminalNode, arg0: NonterminalNode) => T;
+  UnaryExpr_neg?: (this: NonterminalNode, arg0: TerminalNode, arg1: NonterminalNode) => T;
+  UnaryExpr?: (this: NonterminalNode, arg0: NonterminalNode) => T;
+  AtomExpr_func?: (this: NonterminalNode, arg0: NonterminalNode) => T;
+  AtomExpr_paren?: (
+    this: NonterminalNode,
+    arg0: TerminalNode,
+    arg1: NonterminalNode,
+    arg2: TerminalNode,
+  ) => T;
+  AtomExpr_string?: (this: NonterminalNode, arg0: NonterminalNode) => T;
+  AtomExpr_float?: (this: NonterminalNode, arg0: NonterminalNode) => T;
+  AtomExpr_integer?: (this: NonterminalNode, arg0: NonterminalNode) => T;
+  AtomExpr_bool?: (this: NonterminalNode, arg0: NonterminalNode) => T;
+  AtomExpr_null?: (this: NonterminalNode, arg0: NonterminalNode) => T;
+  AtomExpr_columnRef?: (this: NonterminalNode, arg0: NonterminalNode) => T;
+  AtomExpr?: (this: NonterminalNode, arg0: NonterminalNode) => T;
   ColumnRef_qualified?: (
     this: NonterminalNode,
     arg0: NonterminalNode,

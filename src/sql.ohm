@@ -17,11 +17,9 @@ SQL {
     | ColumnExpr                -- plain
 
   ColumnExpr
-    = FuncCall            -- func
-    | qualifiedWildcard   -- qualifiedWild
+    = qualifiedWildcard   -- qualifiedWild
     | wildcard            -- wild
-    | qualifiedName       -- qualified
-    | identifier          -- simple
+    | WhereValue          -- expr
 
   FuncCall = identifier "(" FuncArgs ")"
 
@@ -34,7 +32,6 @@ SQL {
   FuncArgList = NonemptyListOf<WhereValue, ",">
 
   qualifiedWildcard = identifier "." "*"
-  qualifiedName     = identifier "." identifier
   wildcard          = "*"
 
   // --- FROM ---
@@ -107,14 +104,34 @@ SQL {
 
   compOp = "<>" | "!=" | "<=" | ">=" | "<" | ">" | "="
 
-  WhereValue
-    = FuncCall        -- func
-    | stringLiteral   -- string
-    | floatLiteral    -- float
-    | integer         -- integer
-    | boolLiteral     -- bool
-    | null            -- null
-    | ColumnRef       -- columnRef
+  // Expression hierarchy (lowest to highest precedence)
+  WhereValue = AddExpr
+
+  AddExpr
+    = AddExpr "+" MulExpr   -- add
+    | AddExpr "-" MulExpr   -- sub
+    | AddExpr "||" MulExpr  -- concat
+    | MulExpr
+
+  MulExpr
+    = MulExpr "*" UnaryExpr  -- mul
+    | MulExpr "/" UnaryExpr  -- div
+    | MulExpr "%" UnaryExpr  -- mod
+    | UnaryExpr
+
+  UnaryExpr
+    = "-" AtomExpr           -- neg
+    | AtomExpr
+
+  AtomExpr
+    = FuncCall               -- func
+    | "(" WhereValue ")"     -- paren
+    | stringLiteral          -- string
+    | floatLiteral           -- float
+    | integer                -- integer
+    | boolLiteral            -- bool
+    | null                   -- null
+    | ColumnRef              -- columnRef
 
   ColumnRef
     = identifier "." identifier  -- qualified

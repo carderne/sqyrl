@@ -19,6 +19,7 @@ import type {
   TableRef,
   Terminal,
   WhereAnd,
+  WhereArith,
   WhereBetween,
   WhereComparison,
   WhereIn,
@@ -28,6 +29,7 @@ import type {
   WhereNot,
   WhereOr,
   WhereRoot,
+  WhereUnaryMinus,
   WhereValue,
 } from "./ast";
 import { unreachable } from "./utils";
@@ -99,8 +101,12 @@ function r(node: ASTNode | Terminal): string {
       return handleWhereIn(node);
     case "where_like":
       return handleWhereLike(node);
+    case "where_arith":
+      return handleWhereArith(node);
+    case "where_unary_minus":
+      return handleWhereUnaryMinus(node);
     case "where_value":
-      return handleWhereValue(node);
+      return handleWhereValue(node as Extract<WhereValue, { type: "where_value" }>);
     case "column":
       return handleColumn(node);
     case "column_expr":
@@ -231,6 +237,14 @@ function handleWhereIn(node: WhereIn): string {
   return `${r(node.expr)}${node.not ? " NOT" : ""} IN (${list})`;
 }
 
+function handleWhereArith(node: WhereArith): string {
+  return `(${r(node.left)} ${node.op} ${r(node.right)})`;
+}
+
+function handleWhereUnaryMinus(node: WhereUnaryMinus): string {
+  return `-${r(node.expr)}`;
+}
+
 function handleWhereLike(node: WhereLike): string {
   const notStr = node.not ? " NOT" : "";
   return `${r(node.expr)}${notStr} ${node.op.toUpperCase()} ${r(node.pattern)}`;
@@ -240,7 +254,7 @@ function handleWhereComparison(node: WhereComparison): string {
   return `${r(node.left)} ${node.operator} ${r(node.right)}`;
 }
 
-function handleWhereValue(node: WhereValue): string {
+function handleWhereValue(node: Extract<WhereValue, { type: "where_value" }>): string {
   switch (node.kind) {
     case "string":
       return `'${node.value}'`;
@@ -290,12 +304,8 @@ function handleColumnExpr(node: ColumnExpr): string {
       return "*";
     case "qualified_wildcard":
       return `${node.table}.*`;
-    case "qualified":
-      return `${node.table}.${node.name}`;
-    case "simple":
-      return node.name!;
-    case "func_call":
-      return r(node.func!);
+    case "expr":
+      return r(node.expr!);
     default:
       return unreachable(node.kind);
   }

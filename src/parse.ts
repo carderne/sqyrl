@@ -1,6 +1,7 @@
 import type {
   ASTNode,
   Alias,
+  ArithOp,
   Column,
   ColumnExpr,
   ColumnRef,
@@ -26,6 +27,7 @@ import type {
   TableName,
   TableRef,
   WhereBetween,
+  WhereArith,
   WhereComparison,
   WhereExpr,
   WhereIn,
@@ -34,6 +36,7 @@ import type {
   WhereLike,
   WhereNot,
   WhereRoot,
+  WhereUnaryMinus,
   WhereValue,
 } from "./ast";
 import grammar, { type SQLSemantics } from "./sql.ohm-bundle";
@@ -131,23 +134,11 @@ semantics.addOperation<ASTNode>("toAST()", {
     return w.toAST();
   },
 
-  ColumnExpr_qualified(qn) {
-    return qn.toAST();
-  },
-
-  ColumnExpr_func(funcCall) {
+  ColumnExpr_expr(val) {
     return {
       type: "column_expr",
-      kind: "func_call",
-      func: funcCall.toAST() as FuncCall,
-    } satisfies ColumnExpr as ASTNode;
-  },
-
-  ColumnExpr_simple(ident) {
-    return {
-      type: "column_expr",
-      kind: "simple",
-      name: ident.sourceString,
+      kind: "expr",
+      expr: val.toAST() as WhereValue,
     } satisfies ColumnExpr as ASTNode;
   },
 
@@ -192,15 +183,6 @@ semantics.addOperation<ASTNode>("toAST()", {
       type: "column_expr",
       kind: "qualified_wildcard",
       table: table.sourceString,
-    } satisfies ColumnExpr as ASTNode;
-  },
-
-  qualifiedName(table, _dot, col) {
-    return {
-      type: "column_expr",
-      kind: "qualified",
-      table: table.sourceString,
-      name: col.sourceString,
     } satisfies ColumnExpr as ASTNode;
   },
 
@@ -571,7 +553,68 @@ semantics.addOperation<ASTNode>("toAST()", {
     } satisfies WhereLike as ASTNode;
   },
 
-  WhereValue_func(funcCall) {
+  AddExpr_add(left, _op, right) {
+    return {
+      type: "where_arith",
+      op: "+" as ArithOp,
+      left: left.toAST() as WhereValue,
+      right: right.toAST() as WhereValue,
+    } satisfies WhereArith as ASTNode;
+  },
+
+  AddExpr_sub(left, _op, right) {
+    return {
+      type: "where_arith",
+      op: "-" as ArithOp,
+      left: left.toAST() as WhereValue,
+      right: right.toAST() as WhereValue,
+    } satisfies WhereArith as ASTNode;
+  },
+
+  AddExpr_concat(left, _op, right) {
+    return {
+      type: "where_arith",
+      op: "||" as ArithOp,
+      left: left.toAST() as WhereValue,
+      right: right.toAST() as WhereValue,
+    } satisfies WhereArith as ASTNode;
+  },
+
+  MulExpr_mul(left, _op, right) {
+    return {
+      type: "where_arith",
+      op: "*" as ArithOp,
+      left: left.toAST() as WhereValue,
+      right: right.toAST() as WhereValue,
+    } satisfies WhereArith as ASTNode;
+  },
+
+  MulExpr_div(left, _op, right) {
+    return {
+      type: "where_arith",
+      op: "/" as ArithOp,
+      left: left.toAST() as WhereValue,
+      right: right.toAST() as WhereValue,
+    } satisfies WhereArith as ASTNode;
+  },
+
+  MulExpr_mod(left, _op, right) {
+    return {
+      type: "where_arith",
+      op: "%" as ArithOp,
+      left: left.toAST() as WhereValue,
+      right: right.toAST() as WhereValue,
+    } satisfies WhereArith as ASTNode;
+  },
+
+  UnaryExpr_neg(_minus, expr) {
+    return {
+      type: "where_unary_minus",
+      expr: expr.toAST() as WhereValue,
+    } satisfies WhereUnaryMinus as ASTNode;
+  },
+
+  AtomExpr_func(funcCall) {
     return {
       type: "where_value",
       kind: "func_call",
@@ -579,7 +622,11 @@ semantics.addOperation<ASTNode>("toAST()", {
     } satisfies WhereValue as ASTNode;
   },
 
-  WhereValue_string(s) {
+  AtomExpr_paren(_open, expr, _close) {
+    return expr.toAST();
+  },
+
+  AtomExpr_string(s) {
     return {
       type: "where_value",
       kind: "string",
@@ -587,7 +634,7 @@ semantics.addOperation<ASTNode>("toAST()", {
     } satisfies WhereValue as ASTNode;
   },
 
-  WhereValue_integer(n) {
+  AtomExpr_integer(n) {
     return {
       type: "where_value",
       kind: "integer",
@@ -595,7 +642,7 @@ semantics.addOperation<ASTNode>("toAST()", {
     } satisfies WhereValue as ASTNode;
   },
 
-  WhereValue_float(f) {
+  AtomExpr_float(f) {
     return {
       type: "where_value",
       kind: "float",
@@ -603,7 +650,7 @@ semantics.addOperation<ASTNode>("toAST()", {
     } satisfies WhereValue as ASTNode;
   },
 
-  WhereValue_bool(b) {
+  AtomExpr_bool(b) {
     return {
       type: "where_value",
       kind: "bool",
@@ -611,14 +658,14 @@ semantics.addOperation<ASTNode>("toAST()", {
     } satisfies WhereValue as ASTNode;
   },
 
-  WhereValue_null(_null) {
+  AtomExpr_null(_null) {
     return {
       type: "where_value",
       kind: "null",
     } satisfies WhereValue as ASTNode;
   },
 
-  WhereValue_columnRef(colRef) {
+  AtomExpr_columnRef(colRef) {
     return {
       type: "where_value",
       kind: "column_ref",

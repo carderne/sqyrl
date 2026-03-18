@@ -53,6 +53,22 @@ test("CROSS JOIN and NATURAL JOIN", () => {
   expect(ast.joins[1]).toMatchObject({ type: "join", joinType: "natural", condition: null });
 });
 
+// --- Arithmetic expressions ---
+
+test("arithmetic in SELECT and WHERE", () => {
+  const sql = "SELECT price * quantity FROM orders WHERE price * quantity > 100";
+  expect(outputSql(parseSql(sql))).toBe(
+    "SELECT (price * quantity) FROM orders WHERE (price * quantity) > 100",
+  );
+});
+
+test("string concatenation and unary minus", () => {
+  const sql = "SELECT fname || ' ' || lname FROM t WHERE -score < -10";
+  expect(outputSql(parseSql(sql))).toBe(
+    "SELECT ((fname || ' ') || lname) FROM t WHERE -score < -10",
+  );
+});
+
 // --- BETWEEN, IN, LIKE, IS TRUE/FALSE/UNKNOWN ---
 
 test("BETWEEN and NOT BETWEEN", () => {

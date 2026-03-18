@@ -179,6 +179,20 @@ export interface WhereLike {
   pattern: WhereValue;
 }
 
+export type ArithOp = "+" | "-" | "*" | "/" | "%" | "||";
+
+export interface WhereArith {
+  readonly type: "where_arith";
+  op: ArithOp;
+  left: WhereValue;
+  right: WhereValue;
+}
+
+export interface WhereUnaryMinus {
+  readonly type: "where_unary_minus";
+  expr: WhereValue;
+}
+
 export type WhereValue =
   | { readonly type: "where_value"; kind: "string"; value: string }
   | { readonly type: "where_value"; kind: "integer"; value: number }
@@ -186,7 +200,9 @@ export type WhereValue =
   | { readonly type: "where_value"; kind: "bool"; value: boolean }
   | { readonly type: "where_value"; kind: "null" }
   | { readonly type: "where_value"; kind: "column_ref"; ref: ColumnRef }
-  | { readonly type: "where_value"; kind: "func_call"; func: FuncCall };
+  | { readonly type: "where_value"; kind: "func_call"; func: FuncCall }
+  | WhereArith
+  | WhereUnaryMinus;
 
 export interface WhereComparison {
   readonly type: "where_comparison";
@@ -214,11 +230,9 @@ export interface FuncCall {
 
 export interface ColumnExpr {
   readonly type: "column_expr";
-  kind: "wildcard" | "qualified_wildcard" | "qualified" | "simple" | "func_call";
-  schema?: string;
+  kind: "wildcard" | "qualified_wildcard" | "expr";
   table?: string;
-  name?: string;
-  func?: FuncCall;
+  expr?: WhereValue;
 }
 
 export interface Column {
