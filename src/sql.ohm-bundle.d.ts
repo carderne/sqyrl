@@ -21,6 +21,7 @@ export interface SQLActionDict<T> extends BaseActionDict<T> {
     arg3: NonterminalNode,
     arg4: IterationNode,
     arg5: IterationNode,
+    arg6: IterationNode,
   ) => T;
   ColumnList?: (this: NonterminalNode, arg0: NonterminalNode) => T;
   ColumnEntry_aliased?: (
@@ -70,6 +71,44 @@ export interface SQLActionDict<T> extends BaseActionDict<T> {
   ) => T;
   TableName_simple?: (this: NonterminalNode, arg0: NonterminalNode) => T;
   TableName?: (this: NonterminalNode, arg0: NonterminalNode) => T;
+  JoinClause_typed?: (
+    this: NonterminalNode,
+    arg0: NonterminalNode,
+    arg1: NonterminalNode,
+    arg2: NonterminalNode,
+    arg3: NonterminalNode,
+  ) => T;
+  JoinClause_cross?: (
+    this: NonterminalNode,
+    arg0: NonterminalNode,
+    arg1: NonterminalNode,
+    arg2: NonterminalNode,
+  ) => T;
+  JoinClause_natural?: (
+    this: NonterminalNode,
+    arg0: NonterminalNode,
+    arg1: NonterminalNode,
+    arg2: NonterminalNode,
+  ) => T;
+  JoinClause?: (this: NonterminalNode, arg0: NonterminalNode) => T;
+  JoinType_innerOuter?: (this: NonterminalNode, arg0: NonterminalNode, arg1: NonterminalNode) => T;
+  JoinType_inner?: (this: NonterminalNode, arg0: NonterminalNode) => T;
+  JoinType_leftOuter?: (this: NonterminalNode, arg0: NonterminalNode, arg1: NonterminalNode) => T;
+  JoinType_left?: (this: NonterminalNode, arg0: NonterminalNode) => T;
+  JoinType_rightOuter?: (this: NonterminalNode, arg0: NonterminalNode, arg1: NonterminalNode) => T;
+  JoinType_right?: (this: NonterminalNode, arg0: NonterminalNode) => T;
+  JoinType_fullOuter?: (this: NonterminalNode, arg0: NonterminalNode, arg1: NonterminalNode) => T;
+  JoinType_full?: (this: NonterminalNode, arg0: NonterminalNode) => T;
+  JoinType?: (this: NonterminalNode, arg0: NonterminalNode) => T;
+  JoinCondition_on?: (this: NonterminalNode, arg0: NonterminalNode, arg1: NonterminalNode) => T;
+  JoinCondition_using?: (
+    this: NonterminalNode,
+    arg0: NonterminalNode,
+    arg1: TerminalNode,
+    arg2: NonterminalNode,
+    arg3: TerminalNode,
+  ) => T;
+  JoinCondition?: (this: NonterminalNode, arg0: NonterminalNode) => T;
   WhereClause?: (this: NonterminalNode, arg0: NonterminalNode, arg1: NonterminalNode) => T;
   WhereExpr?: (this: NonterminalNode, arg0: NonterminalNode) => T;
   WhereOrExpr_or?: (
@@ -120,6 +159,7 @@ export interface SQLActionDict<T> extends BaseActionDict<T> {
   WhereValue_integer?: (this: NonterminalNode, arg0: NonterminalNode) => T;
   WhereValue_bool?: (this: NonterminalNode, arg0: NonterminalNode) => T;
   WhereValue_null?: (this: NonterminalNode, arg0: NonterminalNode) => T;
+  WhereValue_columnRef?: (this: NonterminalNode, arg0: NonterminalNode) => T;
   WhereValue?: (this: NonterminalNode, arg0: NonterminalNode) => T;
   ColumnRef_qualified?: (
     this: NonterminalNode,
@@ -155,6 +195,16 @@ export interface SQLActionDict<T> extends BaseActionDict<T> {
   not?: (this: NonterminalNode, arg0: NonterminalNode) => T;
   null?: (this: NonterminalNode, arg0: NonterminalNode) => T;
   is?: (this: NonterminalNode, arg0: NonterminalNode) => T;
+  join?: (this: NonterminalNode, arg0: NonterminalNode) => T;
+  inner?: (this: NonterminalNode, arg0: NonterminalNode) => T;
+  left?: (this: NonterminalNode, arg0: NonterminalNode) => T;
+  right?: (this: NonterminalNode, arg0: NonterminalNode) => T;
+  full?: (this: NonterminalNode, arg0: NonterminalNode) => T;
+  outer?: (this: NonterminalNode, arg0: NonterminalNode) => T;
+  cross?: (this: NonterminalNode, arg0: NonterminalNode) => T;
+  natural?: (this: NonterminalNode, arg0: NonterminalNode) => T;
+  on?: (this: NonterminalNode, arg0: NonterminalNode) => T;
+  using?: (this: NonterminalNode, arg0: NonterminalNode) => T;
   keyword?: (this: NonterminalNode, arg0: NonterminalNode) => T;
   identPart?: (this: NonterminalNode, arg0: NonterminalNode | TerminalNode) => T;
   space?: (this: NonterminalNode, arg0: NonterminalNode | TerminalNode) => T;

@@ -76,9 +76,9 @@ Tracking PostgreSQL SQL feature coverage in `src/sql.ohm` / `src/ast.ts`.
 
 - [x] String literals (`'…'`)
 - [x] Integer literals
-- [ ] Float / decimal literals (`3.14`, `1e5`)
-- [ ] Boolean literals (`TRUE` / `FALSE`)
-- [ ] `NULL`
+- [x] Float / decimal literals (`3.14`, `1e5`)
+- [x] Boolean literals (`TRUE` / `FALSE`)
+- [x] `NULL`
 - [ ] Dollar-quoted strings (`$$…$$`, `$tag$…$tag$`)
 - [ ] Escape strings (`E'…'`)
 - [ ] Unicode strings (`U&'…'`)
@@ -122,10 +122,10 @@ Tracking PostgreSQL SQL feature coverage in `src/sql.ohm` / `src/ast.ts`.
 - [x] `AND`
 - [x] `OR`
 - [x] Parenthesised grouping
-- [ ] `NOT`
-- [ ] Inequality: `<>`, `!=`
-- [ ] Comparison: `<`, `>`, `<=`, `>=`
-- [ ] `IS NULL` / `IS NOT NULL`
+- [x] `NOT`
+- [x] Inequality: `<>`, `!=`
+- [x] Comparison: `<`, `>`, `<=`, `>=`
+- [x] `IS NULL` / `IS NOT NULL`
 - [ ] `IS TRUE` / `IS FALSE` / `IS UNKNOWN`
 - [ ] `BETWEEN … AND …` / `NOT BETWEEN`
 - [ ] `IN (…)` list / `NOT IN (…)`
@@ -140,7 +140,7 @@ Tracking PostgreSQL SQL feature coverage in `src/sql.ohm` / `src/ast.ts`.
 - [ ] Arithmetic expressions on either side of comparisons
 - [ ] Function calls in comparisons
 - [ ] Right-hand side column reference (col = col)
-- [ ] Right-hand side integer / boolean / NULL literals
+- [x] Right-hand side integer / boolean / NULL literals
 
 ---
 

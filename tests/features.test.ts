@@ -26,6 +26,33 @@ test("IS NOT NULL round-trip", () => {
   expect(outputSql(parseSql(sql))).toBe(sql);
 });
 
+// --- JOINs ---
+
+test("INNER JOIN with ON condition output", () => {
+  const sql = "SELECT u.id, o.total FROM users AS u INNER JOIN orders AS o ON u.id = o.user_id";
+  expect(outputSql(parseSql(sql))).toBe(sql);
+});
+
+test("LEFT JOIN with USING output", () => {
+  const sql = "SELECT a.id, b.name FROM a LEFT JOIN b USING (id)";
+  expect(outputSql(parseSql(sql))).toBe(sql);
+});
+
+test("multiple JOINs parse to correct join types", () => {
+  const ast = parseSql(
+    "SELECT * FROM t1 LEFT OUTER JOIN t2 ON t1.id = t2.id RIGHT JOIN t3 ON t1.id = t3.id",
+  );
+  expect(ast.joins).toHaveLength(2);
+  expect(ast.joins[0].joinType).toBe("left_outer");
+  expect(ast.joins[1].joinType).toBe("right");
+});
+
+test("CROSS JOIN and NATURAL JOIN", () => {
+  const ast = parseSql("SELECT * FROM a CROSS JOIN b NATURAL JOIN c");
+  expect(ast.joins[0]).toMatchObject({ type: "join", joinType: "cross", condition: null });
+  expect(ast.joins[1]).toMatchObject({ type: "join", joinType: "natural", condition: null });
+});
+
 // --- Numeric and boolean RHS literals ---
 
 test("WHERE with integer RHS literal", () => {

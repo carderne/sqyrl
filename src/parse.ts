@@ -5,6 +5,9 @@ import type {
   ColumnExpr,
   ColumnRef,
   ComparisonOperator,
+  JoinClause,
+  JoinCondition,
+  JoinType,
   LimitClause,
   SelectFrom,
   SelectStatement,
@@ -26,12 +29,13 @@ semantics.addOperation<ASTNode>("toAST()", {
     return select.toAST();
   },
 
-  SelectStatement(_select, columns, _from, tableRef, whereClause, limitClause) {
+  SelectStatement(_select, columns, _from, tableRef, joinClauses, whereClause, limitClause) {
     const cols = columns.toAST() as Column[];
     const from: SelectFrom = {
       type: "select_from",
       table: tableRef.toAST() as TableRef,
     };
+    const joins = joinClauses.children.map((j) => j.toAST() as JoinClause);
     const whereIter = whereClause.children;
     const where: WhereRoot | null =
       whereIter.length > 0
@@ -45,6 +49,7 @@ semantics.addOperation<ASTNode>("toAST()", {
       type: "select",
       columns: cols,
       from,
+      joins,
       where,
       limit,
     } satisfies SelectStatement;
@@ -152,6 +157,79 @@ semantics.addOperation<ASTNode>("toAST()", {
     } satisfies TableName as ASTNode;
   },
 
+  JoinClause_typed(joinTypeNode, _join, tableRef, condition) {
+    return {
+      type: "join",
+      joinType: joinTypeNode.toAST() as JoinType,
+      table: tableRef.toAST() as TableRef,
+      condition: condition.toAST() as JoinCondition,
+    } satisfies JoinClause as ASTNode;
+  },
+
+  JoinClause_cross(_cross, _join, tableRef) {
+    return {
+      type: "join",
+      joinType: "cross",
+      table: tableRef.toAST() as TableRef,
+      condition: null,
+    } satisfies JoinClause as ASTNode;
+  },
+
+  JoinClause_natural(_natural, _join, tableRef) {
+    return {
+      type: "join",
+      joinType: "natural",
+      table: tableRef.toAST() as TableRef,
+      condition: null,
+    } satisfies JoinClause as ASTNode;
+  },
+
+  JoinType_innerOuter(_inner, _outer) {
+    return "inner_outer" as unknown as ASTNode;
+  },
+
+  JoinType_inner(_inner) {
+    return "inner" as unknown as ASTNode;
+  },
+
+  JoinType_leftOuter(_left, _outer) {
+    return "left_outer" as unknown as ASTNode;
+  },
+
+  JoinType_left(_left) {
+    return "left" as unknown as ASTNode;
+  },
+
+  JoinType_rightOuter(_right, _outer) {
+    return "right_outer" as unknown as ASTNode;
+  },
+
+  JoinType_right(_right) {
+    return "right" as unknown as ASTNode;
+  },
+
+  JoinType_fullOuter(_full, _outer) {
+    return "full_outer" as unknown as ASTNode;
+  },
+
+  JoinType_full(_full) {
+    return "full" as unknown as ASTNode;
+  },
+
+  JoinCondition_on(_on, expr) {
+    return {
+      type: "join_on",
+      expr: expr.toAST() as WhereExpr,
+    } satisfies JoinCondition as ASTNode;
+  },
+
+  JoinCondition_using(_using, _open, cols, _close) {
+    return {
+      type: "join_using",
+      columns: cols.asIteration().children.map((c) => c.sourceString) as string[],
+    } satisfies JoinCondition as ASTNode;
+  },
+
   WhereClause(_where, expr) {
     return expr.toAST();
   },
@@ -248,6 +326,14 @@ semantics.addOperation<ASTNode>("toAST()", {
     return {
       type: "where_value",
       kind: "null",
+    } satisfies WhereValue as ASTNode;
+  },
+
+  WhereValue_columnRef(colRef) {
+    return {
+      type: "where_value",
+      kind: "column_ref",
+      ref: colRef.toAST() as ColumnRef,
     } satisfies WhereValue as ASTNode;
   },
 
