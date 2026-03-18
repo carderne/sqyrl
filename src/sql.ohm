@@ -1,0 +1,88 @@
+SQL {
+  Statement = SelectStatement ";"?
+
+  SelectStatement
+    = select ColumnList from TableRef WhereClause? LimitClause?
+
+  // --- Columns ---
+
+  ColumnList = NonemptyListOf<ColumnEntry, ",">
+
+  ColumnEntry
+    = ColumnExpr as identifier  -- aliased
+    | ColumnExpr                -- plain
+
+  ColumnExpr
+    = qualifiedWildcard   -- qualifiedWild
+    | wildcard            -- wild
+    | qualifiedName       -- qualified
+    | identifier          -- simple
+
+  qualifiedWildcard = identifier "." "*"
+  qualifiedName     = identifier "." identifier
+  wildcard          = "*"
+
+  // --- FROM ---
+
+  TableRef
+    = TableName as identifier  -- aliased
+    | TableName identifier     -- implicitAlias
+    | TableName                -- plain
+
+  TableName
+    = identifier "." identifier  -- qualified
+    | identifier                 -- simple
+
+  // --- WHERE ---
+
+  WhereClause = where WhereExpr
+
+  WhereExpr = WhereOrExpr
+
+  WhereOrExpr
+    = WhereOrExpr or WhereAndExpr  -- or
+    | WhereAndExpr
+
+  WhereAndExpr
+    = WhereAndExpr and WherePrimary  -- and
+    | WherePrimary
+
+  WherePrimary
+    = "(" WhereExpr ")"    -- paren
+    | WhereComparison
+
+  WhereComparison = ColumnRef "=" stringLiteral
+
+  ColumnRef
+    = identifier "." identifier  -- qualified
+    | identifier                 -- simple
+
+  stringLiteral = "'" (~"'" any)* "'"
+
+  // --- LIMIT ---
+
+  LimitClause = limit integer
+
+  // --- Terminals ---
+
+  identifier = ~keyword letter (alnum | "_")*
+  integer    = digit+
+
+  // --- Keywords (case-insensitive) ---
+
+  select = caseInsensitive<"select"> ~identPart
+  from   = caseInsensitive<"from">   ~identPart
+  as     = caseInsensitive<"as">     ~identPart
+  where  = caseInsensitive<"where">  ~identPart
+  and    = caseInsensitive<"and">    ~identPart
+  or     = caseInsensitive<"or">     ~identPart
+  limit  = caseInsensitive<"limit">  ~identPart
+
+  keyword = select | from | as | where | and | or | limit
+  identPart = alnum | "_"
+
+  // --- Comments & whitespace ---
+
+  space += lineComment
+  lineComment = "--" (~"\n" any)*
+}

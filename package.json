@@ -1,0 +1,53 @@
+{
+  "name": "sqyrl",
+  "version": "0.0.2",
+  "description": "A starter for creating a TypeScript package.",
+  "homepage": "https://github.com/carderne/sqyrl#readme",
+  "bugs": {
+    "url": "https://github.com/carderne/sqyrl/issues"
+  },
+  "license": "MIT",
+  "author": "Chris Arderne <chris@rdrn.me>",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/carderne/sqyrl.git"
+  },
+  "files": [
+    "dist"
+  ],
+  "type": "module",
+  "exports": {
+    ".": "./dist/index.mjs",
+    "./package.json": "./package.json"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "build": "vp pack",
+    "dev": "vp pack --watch",
+    "test": "vp test",
+    "check": "vp check",
+    "prepublishOnly": "vp run build",
+    "gen:types": "ohm generateBundles --withTypes 'src/sql.ohm'"
+  },
+  "dependencies": {
+    "ohm-js": "^17.5.0"
+  },
+  "devDependencies": {
+    "@ohm-js/cli": "^2.0.1",
+    "@types/node": "^25.5.0",
+    "@typescript/native-preview": "7.0.0-dev.20260316.1",
+    "bumpp": "^11.0.1",
+    "typescript": "^5.9.3",
+    "vite-plus": "^0.1.11"
+  },
+  "packageManager": "pnpm@10.32.1",
+  "pnpm": {
+    "overrides": {
+      "vite": "npm:@voidzero-dev/vite-plus-core@latest",
+      "vitest": "npm:@voidzero-dev/vite-plus-test@latest"
+    }
+  },
+  "logo": "https://cdn.jsdelivr.net/gh/carderne/sqyrl@main/docs/logo.png"
+}
