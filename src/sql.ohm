@@ -17,10 +17,21 @@ SQL {
     | ColumnExpr                -- plain
 
   ColumnExpr
-    = qualifiedWildcard   -- qualifiedWild
+    = FuncCall            -- func
+    | qualifiedWildcard   -- qualifiedWild
     | wildcard            -- wild
     | qualifiedName       -- qualified
     | identifier          -- simple
+
+  FuncCall = identifier "(" FuncArgs ")"
+
+  FuncArgs
+    = distinct FuncArgList  -- distinct
+    | FuncArgList           -- plain
+    | wildcard              -- wildcard
+    | /* empty */           -- empty
+
+  FuncArgList = NonemptyListOf<WhereValue, ",">
 
   qualifiedWildcard = identifier "." "*"
   qualifiedName     = identifier "." identifier
@@ -78,14 +89,15 @@ SQL {
     | WhereComparison
 
   WhereComparison
-    = ColumnRef compOp WhereValue   -- compare
-    | ColumnRef is not null         -- isNotNull
-    | ColumnRef is null             -- isNull
+    = WhereValue compOp WhereValue  -- compare
+    | WhereValue is not null        -- isNotNull
+    | WhereValue is null            -- isNull
 
   compOp = "<>" | "!=" | "<=" | ">=" | "<" | ">" | "="
 
   WhereValue
-    = stringLiteral   -- string
+    = FuncCall        -- func
+    | stringLiteral   -- string
     | floatLiteral    -- float
     | integer         -- integer
     | boolLiteral     -- bool

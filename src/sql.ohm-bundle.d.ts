@@ -47,11 +47,25 @@ export interface SQLActionDict<T> extends BaseActionDict<T> {
   ) => T;
   ColumnEntry_plain?: (this: NonterminalNode, arg0: NonterminalNode) => T;
   ColumnEntry?: (this: NonterminalNode, arg0: NonterminalNode) => T;
+  ColumnExpr_func?: (this: NonterminalNode, arg0: NonterminalNode) => T;
   ColumnExpr_qualifiedWild?: (this: NonterminalNode, arg0: NonterminalNode) => T;
   ColumnExpr_wild?: (this: NonterminalNode, arg0: NonterminalNode) => T;
   ColumnExpr_qualified?: (this: NonterminalNode, arg0: NonterminalNode) => T;
   ColumnExpr_simple?: (this: NonterminalNode, arg0: NonterminalNode) => T;
   ColumnExpr?: (this: NonterminalNode, arg0: NonterminalNode) => T;
+  FuncCall?: (
+    this: NonterminalNode,
+    arg0: NonterminalNode,
+    arg1: TerminalNode,
+    arg2: NonterminalNode,
+    arg3: TerminalNode,
+  ) => T;
+  FuncArgs_distinct?: (this: NonterminalNode, arg0: NonterminalNode, arg1: NonterminalNode) => T;
+  FuncArgs_plain?: (this: NonterminalNode, arg0: NonterminalNode) => T;
+  FuncArgs_wildcard?: (this: NonterminalNode, arg0: NonterminalNode) => T;
+  FuncArgs_empty?: (this: NonterminalNode) => T;
+  FuncArgs?: (this: NonterminalNode, arg0: NonterminalNode) => T;
+  FuncArgList?: (this: NonterminalNode, arg0: NonterminalNode) => T;
   qualifiedWildcard?: (
     this: NonterminalNode,
     arg0: NonterminalNode,
@@ -169,6 +183,7 @@ export interface SQLActionDict<T> extends BaseActionDict<T> {
   ) => T;
   WhereComparison?: (this: NonterminalNode, arg0: NonterminalNode) => T;
   compOp?: (this: NonterminalNode, arg0: TerminalNode) => T;
+  WhereValue_func?: (this: NonterminalNode, arg0: NonterminalNode) => T;
   WhereValue_string?: (this: NonterminalNode, arg0: NonterminalNode) => T;
   WhereValue_float?: (this: NonterminalNode, arg0: NonterminalNode) => T;
   WhereValue_integer?: (this: NonterminalNode, arg0: NonterminalNode) => T;
