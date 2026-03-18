@@ -37,9 +37,9 @@ Tracking PostgreSQL SQL feature coverage in `src/sql.ohm` / `src/ast.ts`.
 - [x] `table.column` (qualified name)
 - [x] `column` (simple identifier)
 - [x] Column alias (`AS`)
-- [ ] Expressions / arithmetic: `a + b`, `a - b`, `a * b`, `a / b`, `a % b`, `a ^ b`
-- [ ] Unary minus: `-expr`
-- [ ] String concatenation: `a || b`
+- [x] Expressions / arithmetic: `a + b`, `a - b`, `a * b`, `a / b`, `a % b`
+- [x] Unary minus: `-expr`
+- [x] String concatenation: `a || b`
 - [x] Function calls: `count(*)`, `coalesce(a, b)`, `now()`, `lower(col)`, …
 - [x] Aggregate functions: `COUNT`, `SUM`, `AVG`, `MIN`, `MAX`
 - [x] `DISTINCT` inside aggregates: `COUNT(DISTINCT col)`

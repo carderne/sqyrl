@@ -169,7 +169,9 @@ SQL {
 
   // --- Terminals ---
 
-  identifier = ~keyword letter (alnum | "_")*
+  identifier = quotedIdentifier | bareIdentifier
+  bareIdentifier = ~keyword letter (alnum | "_")*
+  quotedIdentifier = "\"" (~"\"" any)* "\""
   integer    = digit+
 
   // --- Keywords (case-insensitive) ---

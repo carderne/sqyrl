@@ -364,7 +364,14 @@ export interface SQLActionDict<T> extends BaseActionDict<T> {
   NullsOrder?: (this: NonterminalNode, arg0: NonterminalNode) => T;
   LimitClause?: (this: NonterminalNode, arg0: NonterminalNode, arg1: NonterminalNode) => T;
   OffsetClause?: (this: NonterminalNode, arg0: NonterminalNode, arg1: NonterminalNode) => T;
-  identifier?: (this: NonterminalNode, arg0: NonterminalNode, arg1: IterationNode) => T;
+  identifier?: (this: NonterminalNode, arg0: NonterminalNode) => T;
+  bareIdentifier?: (this: NonterminalNode, arg0: NonterminalNode, arg1: IterationNode) => T;
+  quotedIdentifier?: (
+    this: NonterminalNode,
+    arg0: TerminalNode,
+    arg1: IterationNode,
+    arg2: TerminalNode,
+  ) => T;
   integer?: (this: NonterminalNode, arg0: IterationNode) => T;
   select?: (this: NonterminalNode, arg0: NonterminalNode) => T;
   from?: (this: NonterminalNode, arg0: NonterminalNode) => T;

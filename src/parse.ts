@@ -115,7 +115,7 @@ semantics.addOperation<ASTNode>("toAST()", {
     return {
       type: "column",
       expr: expr.toAST() as ColumnExpr,
-      alias: { type: "alias", name: alias.sourceString } satisfies Alias,
+      alias: { type: "alias", name: alias.toAST() as string } satisfies Alias,
     } satisfies Column as ASTNode;
   },
 
@@ -145,7 +145,7 @@ semantics.addOperation<ASTNode>("toAST()", {
   FuncCall(name, _open, args, _close) {
     return {
       type: "func_call",
-      name: name.sourceString,
+      name: name.toAST() as string,
       args: args.toAST() as FuncCallArg,
     } satisfies FuncCall as ASTNode;
   },
@@ -182,7 +182,7 @@ semantics.addOperation<ASTNode>("toAST()", {
     return {
       type: "column_expr",
       kind: "qualified_wildcard",
-      table: table.sourceString,
+      table: table.toAST() as string,
     } satisfies ColumnExpr as ASTNode;
   },
 
@@ -198,7 +198,7 @@ semantics.addOperation<ASTNode>("toAST()", {
     return {
       type: "table_ref",
       ...tn,
-      alias: { type: "alias", name: alias.sourceString } satisfies Alias,
+      alias: { type: "alias", name: alias.toAST() as string } satisfies Alias,
     } satisfies TableRef as ASTNode;
   },
 
@@ -207,7 +207,7 @@ semantics.addOperation<ASTNode>("toAST()", {
     return {
       type: "table_ref",
       ...tn,
-      alias: { type: "alias", name: alias.sourceString } satisfies Alias,
+      alias: { type: "alias", name: alias.toAST() as string } satisfies Alias,
     } satisfies TableRef as ASTNode;
   },
 
@@ -221,14 +221,14 @@ semantics.addOperation<ASTNode>("toAST()", {
 
   TableName_qualified(schema, _dot, name) {
     return {
-      schema: schema.sourceString,
-      name: name.sourceString,
+      schema: schema.toAST() as string,
+      name: name.toAST() as string,
     } satisfies TableName as ASTNode;
   },
 
   TableName_simple(name) {
     return {
-      name: name.sourceString,
+      name: name.toAST() as string,
     } satisfies TableName as ASTNode;
   },
 
@@ -375,7 +375,7 @@ semantics.addOperation<ASTNode>("toAST()", {
   JoinCondition_using(_using, _open, cols, _close) {
     return {
       type: "join_using",
-      columns: cols.asIteration().children.map((c) => c.sourceString) as string[],
+      columns: cols.asIteration().children.map((c) => c.toAST() as string),
     } satisfies JoinCondition as ASTNode;
   },
 
@@ -676,15 +676,15 @@ semantics.addOperation<ASTNode>("toAST()", {
   ColumnRef_qualified(table, _dot, name) {
     return {
       type: "column_ref",
-      table: table.sourceString,
-      name: name.sourceString,
+      table: table.toAST() as string,
+      name: name.toAST() as string,
     } satisfies ColumnRef as ASTNode;
   },
 
   ColumnRef_simple(name) {
     return {
       type: "column_ref",
-      name: name.sourceString,
+      name: name.toAST() as string,
     } satisfies ColumnRef as ASTNode;
   },
 
@@ -694,6 +694,19 @@ semantics.addOperation<ASTNode>("toAST()", {
 
   floatLiteral(_int, _dot, _frac) {
     return parseFloat(this.sourceString) as unknown as ASTNode;
+  },
+
+  identifier(inner) {
+    // Strips quotes from quoted identifiers, returns bare name for unquoted
+    return inner.toAST();
+  },
+
+  quotedIdentifier(_open, chars, _close) {
+    return chars.sourceString as unknown as ASTNode;
+  },
+
+  bareIdentifier(_first, _rest) {
+    return this.sourceString as unknown as ASTNode;
   },
 
   integer(_digits) {

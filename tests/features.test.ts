@@ -53,6 +53,19 @@ test("CROSS JOIN and NATURAL JOIN", () => {
   expect(ast.joins[1]).toMatchObject({ type: "join", joinType: "natural", condition: null });
 });
 
+// --- Double-quoted identifiers ---
+
+test("double-quoted identifiers in SELECT and FROM", () => {
+  const ast = parseSql('SELECT "My Column", "user id" FROM "My Table" AS t');
+  expect(ast.columns[0].expr).toMatchObject({ kind: "expr" });
+  const col0 = ast.columns[0].expr as any;
+  expect(col0.expr.ref.name).toBe("My Column");
+  const col1 = ast.columns[1].expr as any;
+  expect(col1.expr.ref.name).toBe("user id");
+  expect(ast.from.table.name).toBe("My Table");
+  expect(ast.from.table.alias?.name).toBe("t");
+});
+
 // --- Arithmetic expressions ---
 
 test("arithmetic in SELECT and WHERE", () => {
