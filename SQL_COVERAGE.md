@@ -1,6 +1,6 @@
 # SQL Coverage
 
-Tracking PostgreSQL SQL feature coverage in `src/sql.ohm` / `src/ast.ts`.
+Tracking SQL feature coverage in `src/sql.ohm` / `src/ast.ts`.
 
 ---
 
@@ -48,7 +48,6 @@ Tracking PostgreSQL SQL feature coverage in `src/sql.ohm` / `src/ast.ts`.
 - [x] `CASE WHEN … THEN … ELSE … END`
 - [x] `CAST(expr AS type)`
 - [ ] Subquery in SELECT list (scalar subquery)
-- [ ] `ARRAY[…]` constructor
 - [ ] Row constructor: `ROW(a, b, c)`
 - [ ] Type literals: `INTERVAL '1 day'`, `DATE '2024-01-01'`, …
 
@@ -61,10 +60,6 @@ Tracking PostgreSQL SQL feature coverage in `src/sql.ohm` / `src/ast.ts`.
 - [x] Float / decimal literals (`3.14`, `1e5`)
 - [x] Boolean literals (`TRUE` / `FALSE`)
 - [x] `NULL`
-- [ ] Dollar-quoted strings (`$$…$$`, `$tag$…$tag$`)
-- [ ] Escape strings (`E'…'`)
-- [ ] Unicode strings (`U&'…'`)
-- [ ] Byte literals (`'\x…'`, `B'…'`)
 - [x] Unary minus on numeric (`-1`, `-expr`) — `+1` not supported
 
 ---
@@ -77,10 +72,9 @@ Tracking PostgreSQL SQL feature coverage in `src/sql.ohm` / `src/ast.ts`.
 - [ ] Multiple tables (comma-separated, implicit cross join)
 - [ ] Subquery in FROM: `(SELECT …) AS alias`
 - [ ] Lateral subquery: `LATERAL (…) AS alias`
-- [ ] `TABLESAMPLE` (e.g. `TABLESAMPLE BERNOULLI(10)`)
-- [ ] `UNNEST(array)` in FROM
+- [ ] `TABLESAMPLE`
 - [ ] `VALUES (…), (…)` as a table
-- [ ] Table functions / `ROWS FROM (…)`
+- [ ] Table functions
 
 ---
 
@@ -113,9 +107,7 @@ Tracking PostgreSQL SQL feature coverage in `src/sql.ohm` / `src/ast.ts`.
 - [x] `IN (…)` list / `NOT IN (…)`
 - [ ] `IN (subquery)` / `NOT IN (subquery)`
 - [x] `LIKE` / `NOT LIKE`
-- [ ] `ILIKE` / `NOT ILIKE` (case-insensitive, PostgreSQL)
 - [ ] `SIMILAR TO`
-- [ ] `~`, `~*`, `!~`, `!~*` (regex operators)
 - [ ] `EXISTS (subquery)`
 - [ ] `ANY` / `ALL` / `SOME` (subquery comparisons)
 - [ ] `DISTINCT FROM` / `NOT DISTINCT FROM`
@@ -143,8 +135,6 @@ Tracking PostgreSQL SQL feature coverage in `src/sql.ohm` / `src/ast.ts`.
 - [ ] `WITH name AS (…) SELECT …`
 - [ ] Multiple CTEs (`WITH a AS (…), b AS (…) …`)
 - [ ] `WITH RECURSIVE`
-- [ ] Materialised hint: `WITH name AS MATERIALIZED (…)`
-- [ ] CTE used in INSERT / UPDATE / DELETE
 
 ---
 
@@ -172,32 +162,10 @@ Tracking PostgreSQL SQL feature coverage in `src/sql.ohm` / `src/ast.ts`.
 
 ---
 
-## PostgreSQL-Specific Operators & Features
-
-- [ ] Cast shorthand: `expr::type`
-- [ ] Array subscript: `arr[1]`, `arr[1:3]`
-- [ ] Array operators: `@>`, `<@`, `&&`, `||`
-- [ ] JSON/JSONB operators: `->`, `->>`, `#>`, `#>>`, `@>`, `<@`, `?`, `?|`, `?&`
-- [ ] `jsonb_path_query` / `@@` (jsonpath)
-- [ ] `ARRAY[…]` literal / `ARRAY(SELECT …)`
-- [ ] `ANY(array)` / `ALL(array)`
-- [ ] Range types and operators (`@>`, `<@`, `&&`, …)
-- [ ] `OVERLAPS`
-- [ ] `AT TIME ZONE`
-- [ ] Geometric operators
-- [ ] Text-search operators: `@@`, `to_tsvector`, `to_tsquery`
-- [ ] `RETURNING` clause on INSERT / UPDATE / DELETE
-- [ ] `ON CONFLICT` (upsert): `DO NOTHING` / `DO UPDATE SET …`
-- [ ] `GENERATED ALWAYS AS` (computed columns)
-- [ ] `FETCH FIRST … ROWS WITH TIES`
-
----
-
 ## Identifiers & Quoting
 
 - [x] Unquoted identifiers
 - [x] Double-quoted identifiers (`"My Table"`)
-- [ ] Case-insensitive keyword matching (partial — only keywords defined in grammar)
 - [ ] Schema-qualified identifiers beyond two levels (catalog.schema.table)
 
 ---
@@ -211,5 +179,30 @@ Tracking PostgreSQL SQL feature coverage in `src/sql.ohm` / `src/ast.ts`.
 
 ## Miscellaneous
 
-- [ ] Prepared statements / `$1` positional parameters
 - [ ] Named parameters (`:name`)
+- [ ] Prepared statements (unnamed `?` placeholders)
+
+---
+
+## PostgreSQL-Specific
+
+- [ ] `ILIKE` / `NOT ILIKE`
+- [ ] `~`, `~*`, `!~`, `!~*` (regex operators)
+- [ ] Cast shorthand: `expr::type`
+- [ ] `DISTINCT ON (…)`
+- [ ] `RETURNING` clause
+- [ ] `ON CONFLICT DO NOTHING` / `DO UPDATE SET …` (upsert)
+- [ ] `ARRAY[…]` constructor / `ARRAY(SELECT …)`
+- [ ] `ANY(array)` / `ALL(array)`
+- [ ] Array subscript: `arr[1]`, `arr[1:3]`
+- [ ] Array operators: `@>`, `<@`, `&&`
+- [ ] JSON/JSONB operators: `->`, `->>`, `#>`, `#>>`, `?`, `?|`, `?&`, `@>`
+- [ ] Text-search operators: `@@`, `to_tsvector`, `to_tsquery`
+- [ ] `AT TIME ZONE`
+- [ ] `GENERATED ALWAYS AS` (computed columns)
+- [ ] `FETCH FIRST … ROWS WITH TIES`
+- [ ] Dollar-quoted strings (`$$…$$`, `$tag$…$tag$`)
+- [ ] Escape strings (`E'…'`)
+- [ ] `UNNEST(array)` in FROM
+- [ ] `WITH name AS MATERIALIZED (…)` hint
+- [ ] Positional parameters (`$1`, `$2`, …)
