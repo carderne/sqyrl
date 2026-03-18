@@ -24,6 +24,8 @@ export interface SQLActionDict<T> extends BaseActionDict<T> {
     arg6: IterationNode,
     arg7: IterationNode,
     arg8: IterationNode,
+    arg9: IterationNode,
+    arg10: IterationNode,
   ) => T;
   ColumnList?: (this: NonterminalNode, arg0: NonterminalNode) => T;
   ColumnEntry_aliased?: (
@@ -184,6 +186,13 @@ export interface SQLActionDict<T> extends BaseActionDict<T> {
     arg2: IterationNode,
   ) => T;
   boolLiteral?: (this: NonterminalNode, arg0: NonterminalNode) => T;
+  GroupByClause?: (
+    this: NonterminalNode,
+    arg0: NonterminalNode,
+    arg1: NonterminalNode,
+    arg2: NonterminalNode,
+  ) => T;
+  HavingClause?: (this: NonterminalNode, arg0: NonterminalNode, arg1: NonterminalNode) => T;
   OrderByClause?: (
     this: NonterminalNode,
     arg0: NonterminalNode,
@@ -228,6 +237,8 @@ export interface SQLActionDict<T> extends BaseActionDict<T> {
   using?: (this: NonterminalNode, arg0: NonterminalNode) => T;
   order?: (this: NonterminalNode, arg0: NonterminalNode) => T;
   by?: (this: NonterminalNode, arg0: NonterminalNode) => T;
+  group?: (this: NonterminalNode, arg0: NonterminalNode) => T;
+  having?: (this: NonterminalNode, arg0: NonterminalNode) => T;
   asc?: (this: NonterminalNode, arg0: NonterminalNode) => T;
   desc?: (this: NonterminalNode, arg0: NonterminalNode) => T;
   nulls?: (this: NonterminalNode, arg0: NonterminalNode) => T;

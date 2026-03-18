@@ -11,6 +11,8 @@ export type ASTNode =
   | ColumnRef
   | JoinClause
   | JoinCondition
+  | GroupByClause
+  | HavingClause
   | OrderByClause
   | OrderByItem
   | LimitClause
@@ -24,9 +26,21 @@ export interface SelectStatement {
   from: SelectFrom;
   joins: JoinClause[];
   where: WhereRoot | null;
+  groupBy: GroupByClause | null;
+  having: HavingClause | null;
   orderBy: OrderByClause | null;
   limit: LimitClause | null;
   offset: OffsetClause | null;
+}
+
+export interface GroupByClause {
+  readonly type: "group_by";
+  items: WhereValue[];
+}
+
+export interface HavingClause {
+  readonly type: "having";
+  expr: WhereExpr;
 }
 
 export interface OrderByClause {

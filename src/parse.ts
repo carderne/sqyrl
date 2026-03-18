@@ -5,6 +5,8 @@ import type {
   ColumnExpr,
   ColumnRef,
   ComparisonOperator,
+  GroupByClause,
+  HavingClause,
   JoinClause,
   JoinCondition,
   JoinType,
@@ -41,6 +43,8 @@ semantics.addOperation<ASTNode>("toAST()", {
     tableRef,
     joinClauses,
     whereClause,
+    groupByClause,
+    havingClause,
     orderByClause,
     limitClause,
     offsetClause,
@@ -56,6 +60,12 @@ semantics.addOperation<ASTNode>("toAST()", {
       whereIter.length > 0
         ? { type: "where_root", inner: whereIter[0].toAST() as WhereExpr }
         : null;
+    const groupBy: GroupByClause | null =
+      groupByClause.children.length > 0
+        ? (groupByClause.children[0].toAST() as GroupByClause)
+        : null;
+    const having: HavingClause | null =
+      havingClause.children.length > 0 ? (havingClause.children[0].toAST() as HavingClause) : null;
     const orderBy: OrderByClause | null =
       orderByClause.children.length > 0
         ? (orderByClause.children[0].toAST() as OrderByClause)
@@ -73,6 +83,8 @@ semantics.addOperation<ASTNode>("toAST()", {
       from,
       joins,
       where,
+      groupBy,
+      having,
       orderBy,
       limit,
       offset,
@@ -179,6 +191,20 @@ semantics.addOperation<ASTNode>("toAST()", {
     return {
       name: name.sourceString,
     } satisfies TableName as ASTNode;
+  },
+
+  GroupByClause(_group, _by, items) {
+    return {
+      type: "group_by",
+      items: items.asIteration().children.map((i) => i.toAST() as WhereValue),
+    } satisfies GroupByClause as ASTNode;
+  },
+
+  HavingClause(_having, expr) {
+    return {
+      type: "having",
+      expr: expr.toAST() as WhereExpr,
+    } satisfies HavingClause as ASTNode;
   },
 
   OrderByClause(_order, _by, items) {

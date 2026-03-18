@@ -4,6 +4,8 @@ import type {
   Column,
   ColumnExpr,
   ColumnRef,
+  GroupByClause,
+  HavingClause,
   JoinClause,
   JoinCondition,
   LimitClause,
@@ -65,6 +67,10 @@ function r(node: ASTNode | Terminal): string {
       return handleOrderBy(node);
     case "order_by_item":
       return handleOrderByItem(node);
+    case "group_by":
+      return handleGroupBy(node);
+    case "having":
+      return handleHaving(node);
     case "where_root":
       return handleWhereRoot(node);
     case "where_and":
@@ -98,7 +104,7 @@ function mapR<T extends ASTNode>(t: T[]): string {
 
 function handleSelect(node: SelectStatement): string {
   const joins = node.joins.map((j) => r(j)).join(" ");
-  return `SELECT ${mapR(node.columns)} ${r(node.from)} ${joins} ${r(node.where)} ${r(node.orderBy)} ${r(node.limit)} ${r(node.offset)}`;
+  return `SELECT ${mapR(node.columns)} ${r(node.from)} ${joins} ${r(node.where)} ${r(node.groupBy)} ${r(node.having)} ${r(node.orderBy)} ${r(node.limit)} ${r(node.offset)}`;
 }
 
 function handleSelectFrom(node: SelectFrom): string {
@@ -135,6 +141,14 @@ function handleLimit(node: LimitClause): string {
 
 function handleOffset(node: OffsetClause): string {
   return `OFFSET ${node.value}`;
+}
+
+function handleGroupBy(node: GroupByClause): string {
+  return `GROUP BY ${node.items.map((i) => r(i)).join(", ")}`;
+}
+
+function handleHaving(node: HavingClause): string {
+  return `HAVING ${r(node.expr)}`;
 }
 
 function handleOrderBy(node: OrderByClause): string {

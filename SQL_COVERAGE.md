@@ -38,8 +38,8 @@ Tracking PostgreSQL SQL feature coverage in `src/sql.ohm` / `src/ast.ts`.
 - [x] `JOIN` (see JOIN section below)
 - [ ] `GROUP BY`
 - [ ] `HAVING`
-- [ ] `ORDER BY` (including `ASC` / `DESC` / `NULLS FIRST` / `NULLS LAST`)
-- [ ] `OFFSET`
+- [x] `ORDER BY` (including `ASC` / `DESC` / `NULLS FIRST` / `NULLS LAST`)
+- [x] `OFFSET`
 - [ ] `FETCH FIRST n ROWS ONLY`
 - [ ] `FOR UPDATE / FOR SHARE` (row-level locking)
 - [ ] Set operations: `UNION`, `UNION ALL`, `INTERSECT`, `EXCEPT`

@@ -53,6 +53,14 @@ test("CROSS JOIN and NATURAL JOIN", () => {
   expect(ast.joins[1]).toMatchObject({ type: "join", joinType: "natural", condition: null });
 });
 
+// --- GROUP BY / HAVING ---
+
+test("GROUP BY with HAVING output", () => {
+  const sql =
+    "SELECT status, count FROM orders GROUP BY status HAVING count > 10 ORDER BY count DESC";
+  expect(outputSql(parseSql(sql))).toBe(sql);
+});
+
 // --- ORDER BY / OFFSET ---
 
 test("ORDER BY with direction and NULLS order", () => {
