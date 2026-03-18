@@ -6,6 +6,17 @@
 
 Sanitise agent-written SQL for multi-tenant DBs.
 
+You provide a tenant ID, and the agent supplies the query.
+
+sqyrl works by fully parsing the supplied SQL query into an AST.
+The grammar ONLY accepts `SELECT` statements. Anything else is an error.
+CTEs and other complex things that we aren't confident of securing: error.
+
+Then we ensure that that the needed tenant table is somewhere in the query,
+and add a `WHERE` clause ensuring that only values from the supplied ID are returned.
+
+Apparently this is how [Trigger.dev does it](https://x.com/mattaitken/status/2033928542975639785). And [Cloudflare](https://x.com/thomas_ankcorn/status/2033931057133748330).
+
 ## Quickstart
 
 ```bash
@@ -56,11 +67,6 @@ function makeSqlTool(orgId: string) {
 ```
 
 `sqyrl` parses the SQL, enforces a mandatory equality filter on the given column as the outermost `AND` condition (so it cannot be short-circuited by agent-supplied `OR` clauses), and returns the sanitised SQL string.
-
-## Ideas
-
-- Inspiration: https://x.com/thomas_ankcorn/status/2033931057133748330
-- Grammar ideas: https://github.com/iamwilhelm/ohm-grammar-sql
 
 ## Development
 
