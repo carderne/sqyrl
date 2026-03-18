@@ -17,6 +17,7 @@ LIMIT 10;
 
   expect(ast).toEqual({
     type: "select",
+    distinct: null,
     columns: [
       { type: "column", expr: { type: "column_expr", kind: "wildcard" } },
       { type: "column", expr: { type: "column_expr", kind: "simple", name: "foo" } },
@@ -57,6 +58,7 @@ test("parses simple select without limit", () => {
   const ast = parseSql("SELECT foo FROM bar");
   expect(ast).toEqual({
     type: "select",
+    distinct: null,
     columns: [{ type: "column", expr: { type: "column_expr", kind: "simple", name: "foo" } }],
     from: { type: "select_from", table: { type: "table_ref", name: "bar" } },
     joins: [],
@@ -73,6 +75,7 @@ test("parses table with implicit alias", () => {
   const ast = parseSql("SELECT a FROM schema1.tbl t");
   expect(ast).toEqual({
     type: "select",
+    distinct: null,
     columns: [{ type: "column", expr: { type: "column_expr", kind: "simple", name: "a" } }],
     from: {
       type: "select_from",
@@ -103,6 +106,7 @@ test("is case-insensitive for keywords", () => {
   const ast = parseSql("select foo from bar limit 5");
   expect(ast).toEqual({
     type: "select",
+    distinct: null,
     columns: [{ type: "column", expr: { type: "column_expr", kind: "simple", name: "foo" } }],
     from: { type: "select_from", table: { type: "table_ref", name: "bar" } },
     joins: [],

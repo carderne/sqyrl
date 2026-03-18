@@ -11,6 +11,7 @@ export type ASTNode =
   | ColumnRef
   | JoinClause
   | JoinCondition
+  | Distinct
   | GroupByClause
   | HavingClause
   | OrderByClause
@@ -22,6 +23,7 @@ export type Terminal = string | number | null | undefined;
 
 export interface SelectStatement {
   readonly type: "select";
+  distinct: Distinct | null;
   columns: Column[];
   from: SelectFrom;
   joins: JoinClause[];
@@ -32,6 +34,10 @@ export interface SelectStatement {
   limit: LimitClause | null;
   offset: OffsetClause | null;
 }
+
+export type Distinct =
+  | { readonly type: "distinct"; kind: "plain" }
+  | { readonly type: "distinct"; kind: "on"; exprs: WhereValue[] };
 
 export interface GroupByClause {
   readonly type: "group_by";

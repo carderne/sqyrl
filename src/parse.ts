@@ -5,6 +5,7 @@ import type {
   ColumnExpr,
   ColumnRef,
   ComparisonOperator,
+  Distinct,
   GroupByClause,
   HavingClause,
   JoinClause,
@@ -38,6 +39,7 @@ semantics.addOperation<ASTNode>("toAST()", {
 
   SelectStatement(
     _select,
+    distinctOpt,
     columns,
     _from,
     tableRef,
@@ -49,6 +51,8 @@ semantics.addOperation<ASTNode>("toAST()", {
     limitClause,
     offsetClause,
   ) {
+    const distinct: Distinct | null =
+      distinctOpt.children.length > 0 ? (distinctOpt.children[0].toAST() as Distinct) : null;
     const cols = columns.toAST() as Column[];
     const from: SelectFrom = {
       type: "select_from",
@@ -79,6 +83,7 @@ semantics.addOperation<ASTNode>("toAST()", {
 
     return {
       type: "select",
+      distinct,
       columns: cols,
       from,
       joins,
@@ -191,6 +196,21 @@ semantics.addOperation<ASTNode>("toAST()", {
     return {
       name: name.sourceString,
     } satisfies TableName as ASTNode;
+  },
+
+  Distinct_on(_distinct, _on, _open, exprs, _close) {
+    return {
+      type: "distinct",
+      kind: "on",
+      exprs: exprs.asIteration().children.map((e) => e.toAST() as WhereValue),
+    } satisfies Distinct as ASTNode;
+  },
+
+  Distinct_plain(_distinct) {
+    return {
+      type: "distinct",
+      kind: "plain",
+    } satisfies Distinct as ASTNode;
   },
 
   GroupByClause(_group, _by, items) {

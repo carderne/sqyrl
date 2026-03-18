@@ -36,8 +36,8 @@ Tracking PostgreSQL SQL feature coverage in `src/sql.ohm` / `src/ast.ts`.
 - [x] `LIMIT`
 - [ ] `DISTINCT` / `DISTINCT ON (…)`
 - [x] `JOIN` (see JOIN section below)
-- [ ] `GROUP BY`
-- [ ] `HAVING`
+- [x] `GROUP BY`
+- [x] `HAVING`
 - [x] `ORDER BY` (including `ASC` / `DESC` / `NULLS FIRST` / `NULLS LAST`)
 - [x] `OFFSET`
 - [ ] `FETCH FIRST n ROWS ONLY`

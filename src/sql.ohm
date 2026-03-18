@@ -2,7 +2,11 @@ SQL {
   Statement = SelectStatement ";"?
 
   SelectStatement
-    = select ColumnList from TableRef JoinClause* WhereClause? GroupByClause? HavingClause? OrderByClause? LimitClause? OffsetClause?
+    = select Distinct? ColumnList from TableRef JoinClause* WhereClause? GroupByClause? HavingClause? OrderByClause? LimitClause? OffsetClause?
+
+  Distinct
+    = distinct on "(" NonemptyListOf<WhereValue, ","> ")"  -- on
+    | distinct                                              -- plain
 
   // --- Columns ---
 
@@ -151,8 +155,9 @@ SQL {
   using   = caseInsensitive<"using">   ~identPart
   order   = caseInsensitive<"order">   ~identPart
   by      = caseInsensitive<"by">      ~identPart
-  group   = caseInsensitive<"group">   ~identPart
-  having  = caseInsensitive<"having">  ~identPart
+  group    = caseInsensitive<"group">    ~identPart
+  having   = caseInsensitive<"having">  ~identPart
+  distinct = caseInsensitive<"distinct"> ~identPart
   asc     = caseInsensitive<"asc">     ~identPart
   desc    = caseInsensitive<"desc">    ~identPart
   nulls   = caseInsensitive<"nulls">   ~identPart
@@ -162,7 +167,7 @@ SQL {
 
   keyword = select | from | as | where | and | or | limit | not | null | is
           | join | inner | left | right | full | outer | cross | natural | on | using
-          | order | by | asc | desc | nulls | first | last | offset | group | having
+          | order | by | asc | desc | nulls | first | last | offset | group | having | distinct
   identPart = alnum | "_"
 
   // --- Comments & whitespace ---

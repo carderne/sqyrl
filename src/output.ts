@@ -4,6 +4,7 @@ import type {
   Column,
   ColumnExpr,
   ColumnRef,
+  Distinct,
   GroupByClause,
   HavingClause,
   JoinClause,
@@ -71,6 +72,8 @@ function r(node: ASTNode | Terminal): string {
       return handleGroupBy(node);
     case "having":
       return handleHaving(node);
+    case "distinct":
+      return handleDistinct(node);
     case "where_root":
       return handleWhereRoot(node);
     case "where_and":
@@ -104,7 +107,13 @@ function mapR<T extends ASTNode>(t: T[]): string {
 
 function handleSelect(node: SelectStatement): string {
   const joins = node.joins.map((j) => r(j)).join(" ");
-  return `SELECT ${mapR(node.columns)} ${r(node.from)} ${joins} ${r(node.where)} ${r(node.groupBy)} ${r(node.having)} ${r(node.orderBy)} ${r(node.limit)} ${r(node.offset)}`;
+  const distinctStr = node.distinct ? `${r(node.distinct)} ` : "";
+  return `SELECT ${distinctStr}${mapR(node.columns)} ${r(node.from)} ${joins} ${r(node.where)} ${r(node.groupBy)} ${r(node.having)} ${r(node.orderBy)} ${r(node.limit)} ${r(node.offset)}`;
+}
+
+function handleDistinct(node: Distinct): string {
+  if (node.kind === "plain") return "DISTINCT";
+  return `DISTINCT ON (${node.exprs.map((e) => r(e)).join(", ")})`;
 }
 
 function handleSelectFrom(node: SelectFrom): string {

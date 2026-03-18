@@ -16,17 +16,28 @@ export interface SQLActionDict<T> extends BaseActionDict<T> {
   SelectStatement?: (
     this: NonterminalNode,
     arg0: NonterminalNode,
-    arg1: NonterminalNode,
+    arg1: IterationNode,
     arg2: NonterminalNode,
     arg3: NonterminalNode,
-    arg4: IterationNode,
+    arg4: NonterminalNode,
     arg5: IterationNode,
     arg6: IterationNode,
     arg7: IterationNode,
     arg8: IterationNode,
     arg9: IterationNode,
     arg10: IterationNode,
+    arg11: IterationNode,
   ) => T;
+  Distinct_on?: (
+    this: NonterminalNode,
+    arg0: NonterminalNode,
+    arg1: NonterminalNode,
+    arg2: TerminalNode,
+    arg3: NonterminalNode,
+    arg4: TerminalNode,
+  ) => T;
+  Distinct_plain?: (this: NonterminalNode, arg0: NonterminalNode) => T;
+  Distinct?: (this: NonterminalNode, arg0: NonterminalNode) => T;
   ColumnList?: (this: NonterminalNode, arg0: NonterminalNode) => T;
   ColumnEntry_aliased?: (
     this: NonterminalNode,
@@ -239,6 +250,7 @@ export interface SQLActionDict<T> extends BaseActionDict<T> {
   by?: (this: NonterminalNode, arg0: NonterminalNode) => T;
   group?: (this: NonterminalNode, arg0: NonterminalNode) => T;
   having?: (this: NonterminalNode, arg0: NonterminalNode) => T;
+  distinct?: (this: NonterminalNode, arg0: NonterminalNode) => T;
   asc?: (this: NonterminalNode, arg0: NonterminalNode) => T;
   desc?: (this: NonterminalNode, arg0: NonterminalNode) => T;
   nulls?: (this: NonterminalNode, arg0: NonterminalNode) => T;

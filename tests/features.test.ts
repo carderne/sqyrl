@@ -53,6 +53,18 @@ test("CROSS JOIN and NATURAL JOIN", () => {
   expect(ast.joins[1]).toMatchObject({ type: "join", joinType: "natural", condition: null });
 });
 
+// --- DISTINCT ---
+
+test("SELECT DISTINCT output", () => {
+  const sql = "SELECT DISTINCT status FROM orders";
+  expect(outputSql(parseSql(sql))).toBe(sql);
+});
+
+test("SELECT DISTINCT ON output", () => {
+  const sql = "SELECT DISTINCT ON (user_id) id, user_id FROM events ORDER BY user_id, id DESC";
+  expect(outputSql(parseSql(sql))).toBe(sql);
+});
+
 // --- GROUP BY / HAVING ---
 
 test("GROUP BY with HAVING output", () => {
