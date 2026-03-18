@@ -9,8 +9,13 @@ import type {
   JoinCondition,
   JoinType,
   LimitClause,
+  NullsOrder,
+  OffsetClause,
+  OrderByClause,
+  OrderByItem,
   SelectFrom,
   SelectStatement,
+  SortDirection,
   TableName,
   TableRef,
   WhereComparison,
@@ -29,7 +34,17 @@ semantics.addOperation<ASTNode>("toAST()", {
     return select.toAST();
   },
 
-  SelectStatement(_select, columns, _from, tableRef, joinClauses, whereClause, limitClause) {
+  SelectStatement(
+    _select,
+    columns,
+    _from,
+    tableRef,
+    joinClauses,
+    whereClause,
+    orderByClause,
+    limitClause,
+    offsetClause,
+  ) {
     const cols = columns.toAST() as Column[];
     const from: SelectFrom = {
       type: "select_from",
@@ -41,9 +56,16 @@ semantics.addOperation<ASTNode>("toAST()", {
       whereIter.length > 0
         ? { type: "where_root", inner: whereIter[0].toAST() as WhereExpr }
         : null;
+    const orderBy: OrderByClause | null =
+      orderByClause.children.length > 0
+        ? (orderByClause.children[0].toAST() as OrderByClause)
+        : null;
     const limitIter = limitClause.children;
     const limit: LimitClause | null =
       limitIter.length > 0 ? { type: "limit", value: limitIter[0].toAST() as number } : null;
+    const offsetIter = offsetClause.children;
+    const offset: OffsetClause | null =
+      offsetIter.length > 0 ? { type: "offset", value: offsetIter[0].toAST() as number } : null;
 
     return {
       type: "select",
@@ -51,7 +73,9 @@ semantics.addOperation<ASTNode>("toAST()", {
       from,
       joins,
       where,
+      orderBy,
       limit,
+      offset,
     } satisfies SelectStatement;
   },
 
@@ -155,6 +179,51 @@ semantics.addOperation<ASTNode>("toAST()", {
     return {
       name: name.sourceString,
     } satisfies TableName as ASTNode;
+  },
+
+  OrderByClause(_order, _by, items) {
+    return {
+      type: "order_by",
+      items: items.asIteration().children.map((i) => i.toAST() as OrderByItem),
+    } satisfies OrderByClause as ASTNode;
+  },
+
+  OrderByItem(expr, direction, nullsOrder) {
+    const item: OrderByItem = {
+      type: "order_by_item",
+      expr: expr.toAST() as WhereValue,
+    };
+    if (direction.children.length > 0) {
+      item.direction = direction.children[0].toAST() as SortDirection;
+    }
+    if (nullsOrder.children.length > 0) {
+      item.nulls = nullsOrder.children[0].toAST() as NullsOrder;
+    }
+    return item as ASTNode;
+  },
+
+  OrderDirection_asc(_asc) {
+    return "asc" as unknown as ASTNode;
+  },
+
+  OrderDirection_desc(_desc) {
+    return "desc" as unknown as ASTNode;
+  },
+
+  NullsOrder_first(_nulls, _first) {
+    return "nulls_first" as unknown as ASTNode;
+  },
+
+  NullsOrder_last(_nulls, _last) {
+    return "nulls_last" as unknown as ASTNode;
+  },
+
+  LimitClause(_limit, integer) {
+    return integer.toAST();
+  },
+
+  OffsetClause(_offset, integer) {
+    return integer.toAST();
   },
 
   JoinClause_typed(joinTypeNode, _join, tableRef, condition) {
@@ -358,10 +427,6 @@ semantics.addOperation<ASTNode>("toAST()", {
 
   floatLiteral(_int, _dot, _frac) {
     return parseFloat(this.sourceString) as unknown as ASTNode;
-  },
-
-  LimitClause(_limit, integer) {
-    return integer.toAST();
   },
 
   integer(_digits) {

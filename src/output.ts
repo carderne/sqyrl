@@ -7,6 +7,9 @@ import type {
   JoinClause,
   JoinCondition,
   LimitClause,
+  OffsetClause,
+  OrderByClause,
+  OrderByItem,
   SelectFrom,
   SelectStatement,
   TableRef,
@@ -56,6 +59,12 @@ function r(node: ASTNode | Terminal): string {
       return handleTableRef(node);
     case "limit":
       return handleLimit(node);
+    case "offset":
+      return handleOffset(node);
+    case "order_by":
+      return handleOrderBy(node);
+    case "order_by_item":
+      return handleOrderByItem(node);
     case "where_root":
       return handleWhereRoot(node);
     case "where_and":
@@ -89,7 +98,7 @@ function mapR<T extends ASTNode>(t: T[]): string {
 
 function handleSelect(node: SelectStatement): string {
   const joins = node.joins.map((j) => r(j)).join(" ");
-  return `SELECT ${mapR(node.columns)} ${r(node.from)} ${joins} ${r(node.where)} ${r(node.limit)}`;
+  return `SELECT ${mapR(node.columns)} ${r(node.from)} ${joins} ${r(node.where)} ${r(node.orderBy)} ${r(node.limit)} ${r(node.offset)}`;
 }
 
 function handleSelectFrom(node: SelectFrom): string {
@@ -122,6 +131,25 @@ function handleJoinCondition(node: JoinCondition): string {
 
 function handleLimit(node: LimitClause): string {
   return `LIMIT ${node.value}`;
+}
+
+function handleOffset(node: OffsetClause): string {
+  return `OFFSET ${node.value}`;
+}
+
+function handleOrderBy(node: OrderByClause): string {
+  return `ORDER BY ${node.items.map((i) => r(i)).join(", ")}`;
+}
+
+function handleOrderByItem(node: OrderByItem): string {
+  const dir = node.direction ? ` ${node.direction.toUpperCase()}` : "";
+  const nulls =
+    node.nulls === "nulls_first"
+      ? " NULLS FIRST"
+      : node.nulls === "nulls_last"
+        ? " NULLS LAST"
+        : "";
+  return `${r(node.expr)}${dir}${nulls}`;
 }
 
 function handleTableRef(node: TableRef): string {

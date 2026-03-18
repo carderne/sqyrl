@@ -2,7 +2,7 @@ SQL {
   Statement = SelectStatement ";"?
 
   SelectStatement
-    = select ColumnList from TableRef JoinClause* WhereClause? LimitClause?
+    = select ColumnList from TableRef JoinClause* WhereClause? OrderByClause? LimitClause? OffsetClause?
 
   // --- Columns ---
 
@@ -97,9 +97,24 @@ SQL {
 
   boolLiteral = (caseInsensitive<"true"> | caseInsensitive<"false">) ~identPart
 
-  // --- LIMIT ---
+  // --- ORDER BY ---
+
+  OrderByClause = order by NonemptyListOf<OrderByItem, ",">
+
+  OrderByItem = WhereValue OrderDirection? NullsOrder?
+
+  OrderDirection
+    = asc   -- asc
+    | desc  -- desc
+
+  NullsOrder
+    = nulls first  -- first
+    | nulls last   -- last
+
+  // --- LIMIT / OFFSET ---
 
   LimitClause = limit integer
+  OffsetClause = offset integer
 
   // --- Terminals ---
 
@@ -128,9 +143,18 @@ SQL {
   natural = caseInsensitive<"natural"> ~identPart
   on      = caseInsensitive<"on">      ~identPart
   using   = caseInsensitive<"using">   ~identPart
+  order   = caseInsensitive<"order">   ~identPart
+  by      = caseInsensitive<"by">      ~identPart
+  asc     = caseInsensitive<"asc">     ~identPart
+  desc    = caseInsensitive<"desc">    ~identPart
+  nulls   = caseInsensitive<"nulls">   ~identPart
+  first   = caseInsensitive<"first">   ~identPart
+  last    = caseInsensitive<"last">    ~identPart
+  offset  = caseInsensitive<"offset">  ~identPart
 
   keyword = select | from | as | where | and | or | limit | not | null | is
           | join | inner | left | right | full | outer | cross | natural | on | using
+          | order | by | asc | desc | nulls | first | last | offset
   identPart = alnum | "_"
 
   // --- Comments & whitespace ---

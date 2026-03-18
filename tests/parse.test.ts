@@ -45,7 +45,9 @@ LIMIT 10;
     },
     joins: [],
     where: null,
+    orderBy: null,
     limit: { type: "limit", value: 10 },
+    offset: null,
   });
 });
 
@@ -57,7 +59,9 @@ test("parses simple select without limit", () => {
     from: { type: "select_from", table: { type: "table_ref", name: "bar" } },
     joins: [],
     where: null,
+    orderBy: null,
     limit: null,
+    offset: null,
   });
 });
 
@@ -77,7 +81,9 @@ test("parses table with implicit alias", () => {
     },
     joins: [],
     where: null,
+    orderBy: null,
     limit: null,
+    offset: null,
   });
 });
 
@@ -95,7 +101,9 @@ test("is case-insensitive for keywords", () => {
     from: { type: "select_from", table: { type: "table_ref", name: "bar" } },
     joins: [],
     where: null,
+    orderBy: null,
     limit: { type: "limit", value: 5 },
+    offset: null,
   });
 });
 

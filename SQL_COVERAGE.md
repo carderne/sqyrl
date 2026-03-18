@@ -35,7 +35,7 @@ Tracking PostgreSQL SQL feature coverage in `src/sql.ohm` / `src/ast.ts`.
 - [x] `WHERE`
 - [x] `LIMIT`
 - [ ] `DISTINCT` / `DISTINCT ON (…)`
-- [ ] `JOIN` (see JOIN section below)
+- [x] `JOIN` (see JOIN section below)
 - [ ] `GROUP BY`
 - [ ] `HAVING`
 - [ ] `ORDER BY` (including `ASC` / `DESC` / `NULLS FIRST` / `NULLS LAST`)
@@ -104,15 +104,15 @@ Tracking PostgreSQL SQL feature coverage in `src/sql.ohm` / `src/ast.ts`.
 
 ## JOIN Types
 
-- [ ] `[INNER] JOIN … ON …`
-- [ ] `LEFT [OUTER] JOIN … ON …`
-- [ ] `RIGHT [OUTER] JOIN … ON …`
-- [ ] `FULL [OUTER] JOIN … ON …`
-- [ ] `CROSS JOIN`
-- [ ] `NATURAL JOIN`
-- [ ] `JOIN … USING (col, …)`
-- [ ] Multiple sequential joins
-- [ ] Self-join
+- [x] `[INNER] JOIN … ON …`
+- [x] `LEFT [OUTER] JOIN … ON …`
+- [x] `RIGHT [OUTER] JOIN … ON …`
+- [x] `FULL [OUTER] JOIN … ON …`
+- [x] `CROSS JOIN`
+- [x] `NATURAL JOIN`
+- [x] `JOIN … USING (col, …)`
+- [x] Multiple sequential joins
+- [x] Self-join
 
 ---
 
@@ -139,7 +139,7 @@ Tracking PostgreSQL SQL feature coverage in `src/sql.ohm` / `src/ast.ts`.
 - [ ] `DISTINCT FROM` / `NOT DISTINCT FROM`
 - [ ] Arithmetic expressions on either side of comparisons
 - [ ] Function calls in comparisons
-- [ ] Right-hand side column reference (col = col)
+- [x] Right-hand side column reference (col = col)
 - [x] Right-hand side integer / boolean / NULL literals
 
 ---

@@ -53,6 +53,28 @@ test("CROSS JOIN and NATURAL JOIN", () => {
   expect(ast.joins[1]).toMatchObject({ type: "join", joinType: "natural", condition: null });
 });
 
+// --- ORDER BY / OFFSET ---
+
+test("ORDER BY with direction and NULLS order", () => {
+  const sql =
+    "SELECT id, name FROM users ORDER BY name ASC NULLS FIRST, id DESC NULLS LAST LIMIT 10 OFFSET 20";
+  expect(outputSql(parseSql(sql))).toBe(sql);
+});
+
+test("ORDER BY without direction", () => {
+  const ast = parseSql("SELECT x FROM t ORDER BY x");
+  expect(ast.orderBy).toEqual({
+    type: "order_by",
+    items: [
+      {
+        type: "order_by_item",
+        expr: { type: "where_value", kind: "column_ref", ref: { type: "column_ref", name: "x" } },
+      },
+    ],
+  });
+  expect(ast.offset).toBeNull();
+});
+
 // --- Numeric and boolean RHS literals ---
 
 test("WHERE with integer RHS literal", () => {

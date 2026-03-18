@@ -22,6 +22,8 @@ export interface SQLActionDict<T> extends BaseActionDict<T> {
     arg4: IterationNode,
     arg5: IterationNode,
     arg6: IterationNode,
+    arg7: IterationNode,
+    arg8: IterationNode,
   ) => T;
   ColumnList?: (this: NonterminalNode, arg0: NonterminalNode) => T;
   ColumnEntry_aliased?: (
@@ -182,7 +184,26 @@ export interface SQLActionDict<T> extends BaseActionDict<T> {
     arg2: IterationNode,
   ) => T;
   boolLiteral?: (this: NonterminalNode, arg0: NonterminalNode) => T;
+  OrderByClause?: (
+    this: NonterminalNode,
+    arg0: NonterminalNode,
+    arg1: NonterminalNode,
+    arg2: NonterminalNode,
+  ) => T;
+  OrderByItem?: (
+    this: NonterminalNode,
+    arg0: NonterminalNode,
+    arg1: IterationNode,
+    arg2: IterationNode,
+  ) => T;
+  OrderDirection_asc?: (this: NonterminalNode, arg0: NonterminalNode) => T;
+  OrderDirection_desc?: (this: NonterminalNode, arg0: NonterminalNode) => T;
+  OrderDirection?: (this: NonterminalNode, arg0: NonterminalNode) => T;
+  NullsOrder_first?: (this: NonterminalNode, arg0: NonterminalNode, arg1: NonterminalNode) => T;
+  NullsOrder_last?: (this: NonterminalNode, arg0: NonterminalNode, arg1: NonterminalNode) => T;
+  NullsOrder?: (this: NonterminalNode, arg0: NonterminalNode) => T;
   LimitClause?: (this: NonterminalNode, arg0: NonterminalNode, arg1: NonterminalNode) => T;
+  OffsetClause?: (this: NonterminalNode, arg0: NonterminalNode, arg1: NonterminalNode) => T;
   identifier?: (this: NonterminalNode, arg0: NonterminalNode, arg1: IterationNode) => T;
   integer?: (this: NonterminalNode, arg0: IterationNode) => T;
   select?: (this: NonterminalNode, arg0: NonterminalNode) => T;
@@ -205,6 +226,14 @@ export interface SQLActionDict<T> extends BaseActionDict<T> {
   natural?: (this: NonterminalNode, arg0: NonterminalNode) => T;
   on?: (this: NonterminalNode, arg0: NonterminalNode) => T;
   using?: (this: NonterminalNode, arg0: NonterminalNode) => T;
+  order?: (this: NonterminalNode, arg0: NonterminalNode) => T;
+  by?: (this: NonterminalNode, arg0: NonterminalNode) => T;
+  asc?: (this: NonterminalNode, arg0: NonterminalNode) => T;
+  desc?: (this: NonterminalNode, arg0: NonterminalNode) => T;
+  nulls?: (this: NonterminalNode, arg0: NonterminalNode) => T;
+  first?: (this: NonterminalNode, arg0: NonterminalNode) => T;
+  last?: (this: NonterminalNode, arg0: NonterminalNode) => T;
+  offset?: (this: NonterminalNode, arg0: NonterminalNode) => T;
   keyword?: (this: NonterminalNode, arg0: NonterminalNode) => T;
   identPart?: (this: NonterminalNode, arg0: NonterminalNode | TerminalNode) => T;
   space?: (this: NonterminalNode, arg0: NonterminalNode | TerminalNode) => T;

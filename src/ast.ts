@@ -11,7 +11,10 @@ export type ASTNode =
   | ColumnRef
   | JoinClause
   | JoinCondition
-  | LimitClause;
+  | OrderByClause
+  | OrderByItem
+  | LimitClause
+  | OffsetClause;
 
 export type Terminal = string | number | null | undefined;
 
@@ -21,7 +24,29 @@ export interface SelectStatement {
   from: SelectFrom;
   joins: JoinClause[];
   where: WhereRoot | null;
+  orderBy: OrderByClause | null;
   limit: LimitClause | null;
+  offset: OffsetClause | null;
+}
+
+export interface OrderByClause {
+  readonly type: "order_by";
+  items: OrderByItem[];
+}
+
+export type SortDirection = "asc" | "desc";
+export type NullsOrder = "nulls_first" | "nulls_last";
+
+export interface OrderByItem {
+  readonly type: "order_by_item";
+  expr: WhereValue;
+  direction?: SortDirection;
+  nulls?: NullsOrder;
+}
+
+export interface OffsetClause {
+  readonly type: "offset";
+  value: number;
 }
 
 export type JoinType =
