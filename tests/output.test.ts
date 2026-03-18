@@ -11,16 +11,17 @@ test("round-trips a full statement", () => {
 });
 
 test("output after sanitise prepends tenant clause", () => {
-  const ast = parseSql("SELECT foo FROM bar WHERE status = 'active'");
-  const result = sanitiseSql({
-    ast,
+  const ast = parseSql(
+    "SELECT foo FROM bar JOIN myschema.mytable mt ON mt.a = bar.a WHERE status = 'active'",
+  );
+  const result = sanitiseSql(ast, {
     schema: "myschema",
     table: "mytable",
     col: "tenant_id",
     value: "abc",
   });
   expect(outputSql(result)).toBe(
-    "SELECT foo FROM bar WHERE (myschema.mytable.tenant_id = 'abc' AND status = 'active')",
+    "SELECT foo FROM bar INNER JOIN myschema.mytable AS mt ON mt.a = bar.a WHERE (myschema.mytable.tenant_id = 'abc' AND status = 'active')",
   );
 });
 

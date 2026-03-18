@@ -90,6 +90,12 @@ export interface SQLActionDict<T> extends BaseActionDict<T> {
     arg2: NonterminalNode,
     arg3: NonterminalNode,
   ) => T;
+  JoinClause_bare?: (
+    this: NonterminalNode,
+    arg0: NonterminalNode,
+    arg1: NonterminalNode,
+    arg2: NonterminalNode,
+  ) => T;
   JoinClause_cross?: (
     this: NonterminalNode,
     arg0: NonterminalNode,

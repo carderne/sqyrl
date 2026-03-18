@@ -1,25 +1,12 @@
 import { outputSql } from "./output";
 import { parseSql } from "./parse";
-import { sanitiseSql } from "./sanitise";
+import { sanitiseSql, type WhereGuard } from "./sanitise";
 
 export { parseSql, sanitiseSql, outputSql };
 
-export function sqyrl(
-  expr: string,
-  {
-    schema,
-    table,
-    column,
-    value,
-  }: {
-    schema: string;
-    table: string;
-    column: string;
-    value: string;
-  },
-): string {
+export function sqyrl(expr: string, whereGuard: WhereGuard): string {
   const ast = parseSql(expr);
-  const san = sanitiseSql({ ast, schema, table, col: column, value });
+  const san = sanitiseSql(ast, whereGuard);
   const res = outputSql(san);
   return res;
 }

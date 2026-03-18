@@ -201,7 +201,7 @@ function handleOrderByItem(node: OrderByItem): string {
   return `${r(node.expr)}${dir}${nulls}`;
 }
 
-function handleTableRef(node: TableRef): string {
+export function handleTableRef(node: TableRef): string {
   const { schema, name, alias } = node;
   const schemaPref = schema ? `${schema}.` : "";
   return `${schemaPref}${name} ${r(alias)}`;

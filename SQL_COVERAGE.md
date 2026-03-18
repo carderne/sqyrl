@@ -166,7 +166,6 @@ Tracking SQL feature coverage in `src/sql.ohm` / `src/ast.ts`.
 
 - [x] Unquoted identifiers
 - [x] Double-quoted identifiers (`"My Table"`)
-- [ ] Schema-qualified identifiers beyond two levels (catalog.schema.table)
 
 ---
 
@@ -174,13 +173,6 @@ Tracking SQL feature coverage in `src/sql.ohm` / `src/ast.ts`.
 
 - [x] Single-line comments (`-- …`)
 - [x] Block comments (`/* … */`)
-
----
-
-## Miscellaneous
-
-- [ ] Named parameters (`:name`)
-- [ ] Prepared statements (unnamed `?` placeholders)
 
 ---
 

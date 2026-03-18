@@ -47,6 +47,7 @@ SQL {
 
   JoinClause
     = JoinType join TableRef JoinCondition  -- typed
+    | join TableRef JoinCondition           -- bare
     | cross join TableRef                   -- cross
     | natural join TableRef                 -- natural
 

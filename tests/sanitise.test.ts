@@ -4,10 +4,8 @@ import { parseSql } from "../src";
 import { sanitiseSql } from "../src/sanitise";
 
 test("sanitise adds WHERE clause when none exists", () => {
-  const ast = parseSql("SELECT foo FROM bar");
-  const result = sanitiseSql({
-    ast,
-    schema: "myschema",
+  const ast = parseSql("SELECT foo FROM mytable");
+  const result = sanitiseSql(ast, {
     table: "mytable",
     col: "tenant_id",
     value: "abc",
@@ -21,7 +19,7 @@ test("sanitise adds WHERE clause when none exists", () => {
       left: {
         type: "where_value",
         kind: "column_ref",
-        ref: { type: "column_ref", table: "myschema.mytable", name: "tenant_id" },
+        ref: { type: "column_ref", table: "mytable", name: "tenant_id" },
       },
       right: { type: "where_value", kind: "string", value: "abc" },
     },
@@ -29,10 +27,8 @@ test("sanitise adds WHERE clause when none exists", () => {
 });
 
 test("sanitise prepends to existing WHERE as top-level AND", () => {
-  const ast = parseSql("SELECT foo FROM bar WHERE status = 'active'");
-  const result = sanitiseSql({
-    ast,
-    schema: "myschema",
+  const ast = parseSql("SELECT foo FROM mytable WHERE status = 'active'");
+  const result = sanitiseSql(ast, {
     table: "mytable",
     col: "tenant_id",
     value: "abc",
@@ -48,7 +44,7 @@ test("sanitise prepends to existing WHERE as top-level AND", () => {
         left: {
           type: "where_value",
           kind: "column_ref",
-          ref: { type: "column_ref", table: "myschema.mytable", name: "tenant_id" },
+          ref: { type: "column_ref", table: "mytable", name: "tenant_id" },
         },
         right: { type: "where_value", kind: "string", value: "abc" },
       },

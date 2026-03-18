@@ -15,15 +15,17 @@ npm install sqyrl
 ```ts
 import { sqyrl } from "sqyrl";
 
-const sql = sqyrl(`SELECT id, name FROM public.users WHERE status = 'active' LIMIT 10`, {
-  schema: "public",
+const sql = sqyrl(`SELECT id, name FROM users WHERE status = 'active' LIMIT 10`, {
   table: "users",
   column: "tenant_id",
   value: "acme",
 });
 
 console.log(sql);
-// SELECT id, name FROM public.users WHERE public.users.tenant_id = 'acme' AND status = 'active' LIMIT 10
+// SELECT id, name
+// FROM public.users
+// WHERE users.tenant_id = 'acme'
+// AND status = 'active' LIMIT 10
 ```
 
 `sqyrl` parses the SQL, enforces a mandatory equality filter on the given column as the outermost `AND` condition (so it cannot be short-circuited by agent-supplied `OR` clauses), and returns the sanitised SQL string.

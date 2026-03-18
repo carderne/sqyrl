@@ -12,6 +12,14 @@ export default defineConfig({
       typeAware: true,
       typeCheck: true,
     },
+    overrides: [
+      {
+        files: ["src/sql.ohm-bundle.js"],
+        rules: {
+          "unicorn/no-thenable": "off",
+        },
+      },
+    ],
   },
   fmt: {},
 });

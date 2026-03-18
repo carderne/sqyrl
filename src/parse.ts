@@ -307,6 +307,15 @@ semantics.addOperation<ASTNode>("toAST()", {
     } satisfies JoinClause as ASTNode;
   },
 
+  JoinClause_bare(_join, tableRef, condition) {
+    return {
+      type: "join",
+      joinType: "inner" as JoinType,
+      table: tableRef.toAST() as TableRef,
+      condition: condition.toAST() as JoinCondition,
+    } satisfies JoinClause as ASTNode;
+  },
+
   JoinClause_cross(_cross, _join, tableRef) {
     return {
       type: "join",
