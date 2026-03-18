@@ -9,6 +9,7 @@ export type ASTNode =
   | WhereExpr
   | WhereValue
   | ColumnRef
+  | FuncCall
   | JoinClause
   | JoinCondition
   | Distinct
@@ -131,7 +132,7 @@ export interface WhereNot {
 export interface WhereIsNull {
   readonly type: "where_is_null";
   not: boolean;
-  column: ColumnRef;
+  expr: WhereValue;
 }
 
 export type WhereValue =
@@ -140,13 +141,14 @@ export type WhereValue =
   | { readonly type: "where_value"; kind: "float"; value: number }
   | { readonly type: "where_value"; kind: "bool"; value: boolean }
   | { readonly type: "where_value"; kind: "null" }
-  | { readonly type: "where_value"; kind: "column_ref"; ref: ColumnRef };
+  | { readonly type: "where_value"; kind: "column_ref"; ref: ColumnRef }
+  | { readonly type: "where_value"; kind: "func_call"; func: FuncCall };
 
 export interface WhereComparison {
   readonly type: "where_comparison";
   operator: ComparisonOperator;
-  column: ColumnRef;
-  value: WhereValue;
+  left: WhereValue;
+  right: WhereValue;
 }
 
 export interface ColumnRef {
@@ -156,12 +158,23 @@ export interface ColumnRef {
   name: string;
 }
 
+export type FuncCallArg =
+  | { kind: "wildcard" }
+  | { kind: "args"; distinct: boolean; args: WhereValue[] };
+
+export interface FuncCall {
+  readonly type: "func_call";
+  name: string;
+  args: FuncCallArg;
+}
+
 export interface ColumnExpr {
   readonly type: "column_expr";
-  kind: "wildcard" | "qualified_wildcard" | "qualified" | "simple";
+  kind: "wildcard" | "qualified_wildcard" | "qualified" | "simple" | "func_call";
   schema?: string;
   table?: string;
   name?: string;
+  func?: FuncCall;
 }
 
 export interface Column {

@@ -53,6 +53,19 @@ test("CROSS JOIN and NATURAL JOIN", () => {
   expect(ast.joins[1]).toMatchObject({ type: "join", joinType: "natural", condition: null });
 });
 
+// --- Function calls ---
+
+test("function calls in SELECT and WHERE", () => {
+  const sql =
+    "SELECT count(*), lower(name), coalesce(email, 'none') FROM users WHERE length(name) > 3";
+  expect(outputSql(parseSql(sql))).toBe(sql);
+});
+
+test("aggregate with DISTINCT", () => {
+  const sql = "SELECT count(DISTINCT user_id) FROM events";
+  expect(outputSql(parseSql(sql))).toBe(sql);
+});
+
 // --- DISTINCT ---
 
 test("SELECT DISTINCT output", () => {
@@ -102,8 +115,8 @@ test("WHERE with integer RHS literal", () => {
   expect(ast.where?.inner).toEqual({
     type: "where_comparison",
     operator: ">",
-    column: { type: "column_ref", name: "age" },
-    value: { type: "where_value", kind: "integer", value: 18 },
+    left: { type: "where_value", kind: "column_ref", ref: { type: "column_ref", name: "age" } },
+    right: { type: "where_value", kind: "integer", value: 18 },
   });
 });
 
@@ -112,8 +125,8 @@ test("WHERE with float RHS literal", () => {
   expect(ast.where?.inner).toEqual({
     type: "where_comparison",
     operator: ">=",
-    column: { type: "column_ref", name: "score" },
-    value: { type: "where_value", kind: "float", value: 9.5 },
+    left: { type: "where_value", kind: "column_ref", ref: { type: "column_ref", name: "score" } },
+    right: { type: "where_value", kind: "float", value: 9.5 },
   });
 });
 
@@ -122,8 +135,8 @@ test("WHERE with boolean RHS literal", () => {
   expect(ast.where?.inner).toEqual({
     type: "where_comparison",
     operator: "=",
-    column: { type: "column_ref", name: "active" },
-    value: { type: "where_value", kind: "bool", value: true },
+    left: { type: "where_value", kind: "column_ref", ref: { type: "column_ref", name: "active" } },
+    right: { type: "where_value", kind: "bool", value: true },
   });
 });
 
@@ -132,7 +145,7 @@ test("WHERE with NULL value RHS", () => {
   expect(ast.where?.inner).toEqual({
     type: "where_comparison",
     operator: "=",
-    column: { type: "column_ref", name: "col" },
-    value: { type: "where_value", kind: "null" },
+    left: { type: "where_value", kind: "column_ref", ref: { type: "column_ref", name: "col" } },
+    right: { type: "where_value", kind: "null" },
   });
 });

@@ -6,6 +6,8 @@ import type {
   ColumnRef,
   ComparisonOperator,
   Distinct,
+  FuncCall,
+  FuncCallArg,
   GroupByClause,
   HavingClause,
   JoinClause,
@@ -127,12 +129,56 @@ semantics.addOperation<ASTNode>("toAST()", {
     return qn.toAST();
   },
 
+  ColumnExpr_func(funcCall) {
+    return {
+      type: "column_expr",
+      kind: "func_call",
+      func: funcCall.toAST() as FuncCall,
+    } satisfies ColumnExpr as ASTNode;
+  },
+
   ColumnExpr_simple(ident) {
     return {
       type: "column_expr",
       kind: "simple",
       name: ident.sourceString,
     } satisfies ColumnExpr as ASTNode;
+  },
+
+  FuncCall(name, _open, args, _close) {
+    return {
+      type: "func_call",
+      name: name.sourceString,
+      args: args.toAST() as FuncCallArg,
+    } satisfies FuncCall as ASTNode;
+  },
+
+  FuncArgs_distinct(_distinct, argList) {
+    return {
+      kind: "args",
+      distinct: true,
+      args: argList.toAST() as WhereValue[],
+    } as unknown as ASTNode;
+  },
+
+  FuncArgs_plain(argList) {
+    return {
+      kind: "args",
+      distinct: false,
+      args: argList.toAST() as WhereValue[],
+    } as unknown as ASTNode;
+  },
+
+  FuncArgs_wildcard(_star) {
+    return { kind: "wildcard" } as unknown as ASTNode;
+  },
+
+  FuncArgs_empty() {
+    return { kind: "args", distinct: false, args: [] } as unknown as ASTNode;
+  },
+
+  FuncArgList(list) {
+    return list.asIteration().children.map((a) => a.toAST() as WhereValue) as unknown as ASTNode;
   },
 
   qualifiedWildcard(table, _dot, _star) {
@@ -380,29 +426,37 @@ semantics.addOperation<ASTNode>("toAST()", {
     } satisfies WhereNot as ASTNode;
   },
 
-  WhereComparison_compare(colRef, op, value) {
+  WhereComparison_compare(left, op, right) {
     return {
       type: "where_comparison",
       operator: op.sourceString as ComparisonOperator,
-      column: colRef.toAST() as ColumnRef,
-      value: value.toAST() as WhereValue,
+      left: left.toAST() as WhereValue,
+      right: right.toAST() as WhereValue,
     } satisfies WhereComparison as ASTNode;
   },
 
-  WhereComparison_isNotNull(colRef, _is, _not, _null) {
+  WhereComparison_isNotNull(expr, _is, _not, _null) {
     return {
       type: "where_is_null",
       not: true,
-      column: colRef.toAST() as ColumnRef,
+      expr: expr.toAST() as WhereValue,
     } satisfies WhereIsNull as ASTNode;
   },
 
-  WhereComparison_isNull(colRef, _is, _null) {
+  WhereComparison_isNull(expr, _is, _null) {
     return {
       type: "where_is_null",
       not: false,
-      column: colRef.toAST() as ColumnRef,
+      expr: expr.toAST() as WhereValue,
     } satisfies WhereIsNull as ASTNode;
+  },
+
+  WhereValue_func(funcCall) {
+    return {
+      type: "where_value",
+      kind: "func_call",
+      func: funcCall.toAST() as FuncCall,
+    } satisfies WhereValue as ASTNode;
   },
 
   WhereValue_string(s) {

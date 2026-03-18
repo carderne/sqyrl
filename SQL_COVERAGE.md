@@ -7,24 +7,6 @@ Tracking PostgreSQL SQL feature coverage in `src/sql.ohm` / `src/ast.ts`.
 ## Top-Level Statement Types
 
 - [x] `SELECT`
-- [ ] `INSERT INTO`
-- [ ] `UPDATE … SET`
-- [ ] `DELETE FROM`
-- [ ] `CREATE TABLE`
-- [ ] `ALTER TABLE`
-- [ ] `DROP TABLE / VIEW / INDEX / …`
-- [ ] `CREATE VIEW`
-- [ ] `CREATE INDEX`
-- [ ] `TRUNCATE`
-- [ ] `EXPLAIN / EXPLAIN ANALYZE`
-- [ ] `BEGIN / COMMIT / ROLLBACK` (transactions)
-- [ ] `GRANT / REVOKE`
-- [ ] `CREATE FUNCTION / PROCEDURE`
-- [ ] `DO` (anonymous PL/pgSQL block)
-- [ ] `COPY`
-- [ ] `VACUUM / ANALYZE`
-- [ ] `SET / SHOW` (runtime parameters)
-- [ ] `WITH … AS (…)` — CTE as a standalone / top-level wrapper
 
 ---
 
@@ -34,7 +16,7 @@ Tracking PostgreSQL SQL feature coverage in `src/sql.ohm` / `src/ast.ts`.
 - [x] `FROM <table>`
 - [x] `WHERE`
 - [x] `LIMIT`
-- [ ] `DISTINCT` / `DISTINCT ON (…)`
+- [x] `DISTINCT` / `DISTINCT ON (…)`
 - [x] `JOIN` (see JOIN section below)
 - [x] `GROUP BY`
 - [x] `HAVING`
@@ -58,9 +40,9 @@ Tracking PostgreSQL SQL feature coverage in `src/sql.ohm` / `src/ast.ts`.
 - [ ] Expressions / arithmetic: `a + b`, `a - b`, `a * b`, `a / b`, `a % b`, `a ^ b`
 - [ ] Unary minus: `-expr`
 - [ ] String concatenation: `a || b`
-- [ ] Function calls: `count(*)`, `coalesce(a, b)`, `now()`, `lower(col)`, …
-- [ ] Aggregate functions: `COUNT`, `SUM`, `AVG`, `MIN`, `MAX`
-- [ ] `DISTINCT` inside aggregates: `COUNT(DISTINCT col)`
+- [x] Function calls: `count(*)`, `coalesce(a, b)`, `now()`, `lower(col)`, …
+- [x] Aggregate functions: `COUNT`, `SUM`, `AVG`, `MIN`, `MAX`
+- [x] `DISTINCT` inside aggregates: `COUNT(DISTINCT col)`
 - [ ] Window functions: `ROW_NUMBER() OVER (…)`, `RANK()`, `LAG()`, …
 - [ ] `OVER (PARTITION BY … ORDER BY … ROWS/RANGE …)`
 - [ ] `CASE WHEN … THEN … ELSE … END`
@@ -138,7 +120,7 @@ Tracking PostgreSQL SQL feature coverage in `src/sql.ohm` / `src/ast.ts`.
 - [ ] `ANY` / `ALL` / `SOME` (subquery comparisons)
 - [ ] `DISTINCT FROM` / `NOT DISTINCT FROM`
 - [ ] Arithmetic expressions on either side of comparisons
-- [ ] Function calls in comparisons
+- [x] Function calls in comparisons
 - [x] Right-hand side column reference (col = col)
 - [x] Right-hand side integer / boolean / NULL literals
 
@@ -211,52 +193,6 @@ Tracking PostgreSQL SQL feature coverage in `src/sql.ohm` / `src/ast.ts`.
 
 ---
 
-## Data Definition (DDL)
-
-- [ ] `CREATE TABLE (col type constraints, …)`
-- [ ] Column constraints: `NOT NULL`, `UNIQUE`, `PRIMARY KEY`, `DEFAULT`, `CHECK`, `REFERENCES`
-- [ ] Table constraints: `PRIMARY KEY (…)`, `UNIQUE (…)`, `CHECK (…)`, `FOREIGN KEY … REFERENCES …`
-- [ ] `CREATE TABLE … AS SELECT …` (CTAS)
-- [ ] `CREATE TABLE … LIKE …`
-- [ ] `CREATE TEMP / TEMPORARY TABLE`
-- [ ] `CREATE UNLOGGED TABLE`
-- [ ] `ALTER TABLE ADD COLUMN`
-- [ ] `ALTER TABLE DROP COLUMN`
-- [ ] `ALTER TABLE ALTER COLUMN`
-- [ ] `ALTER TABLE ADD CONSTRAINT`
-- [ ] `ALTER TABLE RENAME`
-- [ ] `DROP TABLE [IF EXISTS]`
-- [ ] `CREATE INDEX [CONCURRENTLY]`
-- [ ] `CREATE UNIQUE INDEX`
-- [ ] Partial index: `CREATE INDEX … WHERE …`
-- [ ] Expression index
-- [ ] `DROP INDEX`
-- [ ] `CREATE VIEW`
-- [ ] `CREATE MATERIALIZED VIEW`
-- [ ] `REFRESH MATERIALIZED VIEW`
-- [ ] `CREATE SCHEMA`
-- [ ] `CREATE SEQUENCE`
-- [ ] `CREATE TYPE` (enum, composite, domain)
-- [ ] `CREATE EXTENSION`
-
----
-
-## Data Manipulation (DML)
-
-- [ ] `INSERT INTO … VALUES (…)`
-- [ ] `INSERT INTO … SELECT …`
-- [ ] `INSERT INTO … (col, …) VALUES (…)`
-- [ ] Multi-row `VALUES`
-- [ ] `RETURNING`
-- [ ] `ON CONFLICT DO NOTHING`
-- [ ] `ON CONFLICT (col) DO UPDATE SET …`
-- [ ] `UPDATE … SET col = expr WHERE …`
-- [ ] `UPDATE … SET col = expr FROM … WHERE …` (join-based update)
-- [ ] `DELETE FROM … WHERE …`
-- [ ] `DELETE … USING … WHERE …`
-
----
-
 ## Identifiers & Quoting
 
 - [x] Unquoted identifiers
@@ -275,11 +211,5 @@ Tracking PostgreSQL SQL feature coverage in `src/sql.ohm` / `src/ast.ts`.
 
 ## Miscellaneous
 
-- [ ] Multiple statements separated by `;`
-- [ ] `RETURNING` clause
 - [ ] Prepared statements / `$1` positional parameters
 - [ ] Named parameters (`:name`)
-- [ ] `LISTEN` / `NOTIFY`
-- [ ] `LOCK TABLE`
-- [ ] `CALL` (stored procedures)
-- [ ] `MERGE` (PostgreSQL 15+)

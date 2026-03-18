@@ -18,8 +18,12 @@ test("sanitise adds WHERE clause when none exists", () => {
     inner: {
       type: "where_comparison",
       operator: "=",
-      column: { type: "column_ref", table: "myschema.mytable", name: "tenant_id" },
-      value: { type: "where_value", kind: "string", value: "abc" },
+      left: {
+        type: "where_value",
+        kind: "column_ref",
+        ref: { type: "column_ref", table: "myschema.mytable", name: "tenant_id" },
+      },
+      right: { type: "where_value", kind: "string", value: "abc" },
     },
   });
 });
@@ -41,14 +45,22 @@ test("sanitise prepends to existing WHERE as top-level AND", () => {
       left: {
         type: "where_comparison",
         operator: "=",
-        column: { type: "column_ref", table: "myschema.mytable", name: "tenant_id" },
-        value: { type: "where_value", kind: "string", value: "abc" },
+        left: {
+          type: "where_value",
+          kind: "column_ref",
+          ref: { type: "column_ref", table: "myschema.mytable", name: "tenant_id" },
+        },
+        right: { type: "where_value", kind: "string", value: "abc" },
       },
       right: {
         type: "where_comparison",
         operator: "=",
-        column: { type: "column_ref", name: "status" },
-        value: { type: "where_value", kind: "string", value: "active" },
+        left: {
+          type: "where_value",
+          kind: "column_ref",
+          ref: { type: "column_ref", name: "status" },
+        },
+        right: { type: "where_value", kind: "string", value: "active" },
       },
     },
   });

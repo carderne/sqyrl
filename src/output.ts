@@ -5,6 +5,7 @@ import type {
   ColumnExpr,
   ColumnRef,
   Distinct,
+  FuncCall,
   GroupByClause,
   HavingClause,
   JoinClause,
@@ -96,6 +97,8 @@ function r(node: ASTNode | Terminal): string {
       return handleColumnRef(node);
     case "alias":
       return handleAlias(node);
+    case "func_call":
+      return handleFuncCall(node);
     default:
       return unreachable(node);
   }
@@ -198,11 +201,11 @@ function handleWhereNot(node: WhereNot): string {
 }
 
 function handleWhereIsNull(node: WhereIsNull): string {
-  return `${r(node.column)} IS${node.not ? " NOT" : ""} NULL`;
+  return `${r(node.expr)} IS${node.not ? " NOT" : ""} NULL`;
 }
 
 function handleWhereComparison(node: WhereComparison): string {
-  return `${r(node.column)} ${node.operator} ${r(node.value)}`;
+  return `${r(node.left)} ${node.operator} ${r(node.right)}`;
 }
 
 function handleWhereValue(node: WhereValue): string {
@@ -219,6 +222,8 @@ function handleWhereValue(node: WhereValue): string {
       return "NULL";
     case "column_ref":
       return r(node.ref);
+    case "func_call":
+      return r(node.func);
     default:
       return unreachable(node);
   }
@@ -239,6 +244,14 @@ function handleColumnRef(node: ColumnRef): string {
   return `${schemaPref}${tablePref}${name}`;
 }
 
+function handleFuncCall(node: FuncCall): string {
+  const { name, args } = node;
+  if (args.kind === "wildcard") return `${name}(*)`;
+  const distinctStr = args.distinct ? "DISTINCT " : "";
+  const argsStr = args.args.map((a) => r(a)).join(", ");
+  return `${name}(${distinctStr}${argsStr})`;
+}
+
 function handleColumnExpr(node: ColumnExpr): string {
   switch (node.kind) {
     case "wildcard":
@@ -249,6 +262,8 @@ function handleColumnExpr(node: ColumnExpr): string {
       return `${node.table}.${node.name}`;
     case "simple":
       return node.name!;
+    case "func_call":
+      return r(node.func!);
     default:
       return unreachable(node.kind);
   }
