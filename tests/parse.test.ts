@@ -43,6 +43,7 @@ LIMIT 10;
         alias: { type: "alias", name: "fo" },
       },
     },
+    joins: [],
     where: null,
     limit: { type: "limit", value: 10 },
   });
@@ -54,6 +55,7 @@ test("parses simple select without limit", () => {
     type: "select",
     columns: [{ type: "column", expr: { type: "column_expr", kind: "simple", name: "foo" } }],
     from: { type: "select_from", table: { type: "table_ref", name: "bar" } },
+    joins: [],
     where: null,
     limit: null,
   });
@@ -73,6 +75,7 @@ test("parses table with implicit alias", () => {
         alias: { type: "alias", name: "t" },
       },
     },
+    joins: [],
     where: null,
     limit: null,
   });
@@ -90,6 +93,7 @@ test("is case-insensitive for keywords", () => {
     type: "select",
     columns: [{ type: "column", expr: { type: "column_expr", kind: "simple", name: "foo" } }],
     from: { type: "select_from", table: { type: "table_ref", name: "bar" } },
+    joins: [],
     where: null,
     limit: { type: "limit", value: 5 },
   });

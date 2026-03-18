@@ -4,6 +4,8 @@ import type {
   Column,
   ColumnExpr,
   ColumnRef,
+  JoinClause,
+  JoinCondition,
   LimitClause,
   SelectFrom,
   SelectStatement,
@@ -45,6 +47,11 @@ function r(node: ASTNode | Terminal): string {
       return handleSelect(node);
     case "select_from":
       return handleSelectFrom(node);
+    case "join":
+      return handleJoin(node);
+    case "join_on":
+    case "join_using":
+      return handleJoinCondition(node);
     case "table_ref":
       return handleTableRef(node);
     case "limit":
@@ -81,11 +88,36 @@ function mapR<T extends ASTNode>(t: T[]): string {
 }
 
 function handleSelect(node: SelectStatement): string {
-  return `SELECT ${mapR(node.columns)} ${r(node.from)} ${r(node.where)} ${r(node.limit)}`;
+  const joins = node.joins.map((j) => r(j)).join(" ");
+  return `SELECT ${mapR(node.columns)} ${r(node.from)} ${joins} ${r(node.where)} ${r(node.limit)}`;
 }
 
 function handleSelectFrom(node: SelectFrom): string {
   return `FROM ${r(node.table)}`;
+}
+
+function handleJoin(node: JoinClause): string {
+  const typeStr: Record<string, string> = {
+    inner: "INNER JOIN",
+    inner_outer: "INNER OUTER JOIN",
+    left: "LEFT JOIN",
+    left_outer: "LEFT OUTER JOIN",
+    right: "RIGHT JOIN",
+    right_outer: "RIGHT OUTER JOIN",
+    full: "FULL JOIN",
+    full_outer: "FULL OUTER JOIN",
+    cross: "CROSS JOIN",
+    natural: "NATURAL JOIN",
+  };
+  const cond = node.condition ? ` ${handleJoinCondition(node.condition)}` : "";
+  return `${typeStr[node.joinType]} ${r(node.table)}${cond}`;
+}
+
+function handleJoinCondition(node: JoinCondition): string {
+  if (node.type === "join_on") {
+    return `ON ${r(node.expr)}`;
+  }
+  return `USING (${node.columns.join(", ")})`;
 }
 
 function handleLimit(node: LimitClause): string {
@@ -134,6 +166,8 @@ function handleWhereValue(node: WhereValue): string {
       return node.value ? "TRUE" : "FALSE";
     case "null":
       return "NULL";
+    case "column_ref":
+      return r(node.ref);
     default:
       return unreachable(node);
   }

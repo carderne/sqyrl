@@ -2,7 +2,7 @@ SQL {
   Statement = SelectStatement ";"?
 
   SelectStatement
-    = select ColumnList from TableRef WhereClause? LimitClause?
+    = select ColumnList from TableRef JoinClause* WhereClause? LimitClause?
 
   // --- Columns ---
 
@@ -32,6 +32,27 @@ SQL {
   TableName
     = identifier "." identifier  -- qualified
     | identifier                 -- simple
+
+  // --- JOIN ---
+
+  JoinClause
+    = JoinType join TableRef JoinCondition  -- typed
+    | cross join TableRef                   -- cross
+    | natural join TableRef                 -- natural
+
+  JoinType
+    = inner outer              -- innerOuter
+    | inner                    -- inner
+    | left outer               -- leftOuter
+    | left                     -- left
+    | right outer              -- rightOuter
+    | right                    -- right
+    | full outer               -- fullOuter
+    | full                     -- full
+
+  JoinCondition
+    = on WhereExpr             -- on
+    | using "(" NonemptyListOf<identifier, ","> ")"  -- using
 
   // --- WHERE ---
 
@@ -65,6 +86,7 @@ SQL {
     | integer         -- integer
     | boolLiteral     -- bool
     | null            -- null
+    | ColumnRef       -- columnRef
 
   ColumnRef
     = identifier "." identifier  -- qualified
@@ -93,11 +115,22 @@ SQL {
   and    = caseInsensitive<"and">    ~identPart
   or     = caseInsensitive<"or">     ~identPart
   limit  = caseInsensitive<"limit">  ~identPart
-  not    = caseInsensitive<"not">    ~identPart
-  null   = caseInsensitive<"null">   ~identPart
-  is     = caseInsensitive<"is">     ~identPart
+  not     = caseInsensitive<"not">     ~identPart
+  null    = caseInsensitive<"null">    ~identPart
+  is      = caseInsensitive<"is">      ~identPart
+  join    = caseInsensitive<"join">    ~identPart
+  inner   = caseInsensitive<"inner">   ~identPart
+  left    = caseInsensitive<"left">    ~identPart
+  right   = caseInsensitive<"right">   ~identPart
+  full    = caseInsensitive<"full">    ~identPart
+  outer   = caseInsensitive<"outer">   ~identPart
+  cross   = caseInsensitive<"cross">   ~identPart
+  natural = caseInsensitive<"natural"> ~identPart
+  on      = caseInsensitive<"on">      ~identPart
+  using   = caseInsensitive<"using">   ~identPart
 
   keyword = select | from | as | where | and | or | limit | not | null | is
+          | join | inner | left | right | full | outer | cross | natural | on | using
   identPart = alnum | "_"
 
   // --- Comments & whitespace ---

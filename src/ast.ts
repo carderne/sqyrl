@@ -9,6 +9,8 @@ export type ASTNode =
   | WhereExpr
   | WhereValue
   | ColumnRef
+  | JoinClause
+  | JoinCondition
   | LimitClause;
 
 export type Terminal = string | number | null | undefined;
@@ -17,8 +19,32 @@ export interface SelectStatement {
   readonly type: "select";
   columns: Column[];
   from: SelectFrom;
+  joins: JoinClause[];
   where: WhereRoot | null;
   limit: LimitClause | null;
+}
+
+export type JoinType =
+  | "inner"
+  | "inner_outer"
+  | "left"
+  | "left_outer"
+  | "right"
+  | "right_outer"
+  | "full"
+  | "full_outer"
+  | "cross"
+  | "natural";
+
+export type JoinCondition =
+  | { readonly type: "join_on"; expr: WhereExpr }
+  | { readonly type: "join_using"; columns: string[] };
+
+export interface JoinClause {
+  readonly type: "join";
+  joinType: JoinType;
+  table: TableRef;
+  condition: JoinCondition | null;
 }
 
 export type SelectFrom = {
@@ -68,7 +94,8 @@ export type WhereValue =
   | { readonly type: "where_value"; kind: "integer"; value: number }
   | { readonly type: "where_value"; kind: "float"; value: number }
   | { readonly type: "where_value"; kind: "bool"; value: boolean }
-  | { readonly type: "where_value"; kind: "null" };
+  | { readonly type: "where_value"; kind: "null" }
+  | { readonly type: "where_value"; kind: "column_ref"; ref: ColumnRef };
 
 export interface WhereComparison {
   readonly type: "where_comparison";
