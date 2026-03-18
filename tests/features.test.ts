@@ -117,10 +117,10 @@ test("IN list and NOT IN list", () => {
   );
 });
 
-test("LIKE and ILIKE and negations", () => {
-  const sql = "SELECT id FROM t WHERE name LIKE '%foo%' AND email NOT ILIKE '%bar%'";
+test("LIKE and NOT LIKE", () => {
+  const sql = "SELECT id FROM t WHERE name LIKE '%foo%' AND email NOT LIKE '%bar%'";
   expect(outputSql(parseSql(sql))).toBe(
-    "SELECT id FROM t WHERE (name LIKE '%foo%' AND email NOT ILIKE '%bar%')",
+    "SELECT id FROM t WHERE (name LIKE '%foo%' AND email NOT LIKE '%bar%')",
   );
 });
 
@@ -148,11 +148,6 @@ test("aggregate with DISTINCT", () => {
 
 test("SELECT DISTINCT output", () => {
   const sql = "SELECT DISTINCT status FROM orders";
-  expect(outputSql(parseSql(sql))).toBe(sql);
-});
-
-test("SELECT DISTINCT ON output", () => {
-  const sql = "SELECT DISTINCT ON (user_id) id, user_id FROM events ORDER BY user_id, id DESC";
   expect(outputSql(parseSql(sql))).toBe(sql);
 });
 

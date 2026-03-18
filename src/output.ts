@@ -138,9 +138,8 @@ function handleSelect(node: SelectStatement): string {
   return `SELECT ${distinctStr}${mapR(node.columns)} ${r(node.from)} ${joins} ${r(node.where)} ${r(node.groupBy)} ${r(node.having)} ${r(node.orderBy)} ${r(node.limit)} ${r(node.offset)}`;
 }
 
-function handleDistinct(node: Distinct): string {
-  if (node.kind === "plain") return "DISTINCT";
-  return `DISTINCT ON (${node.exprs.map((e) => r(e)).join(", ")})`;
+function handleDistinct(_node: Distinct): string {
+  return "DISTINCT";
 }
 
 function handleSelectFrom(node: SelectFrom): string {

@@ -16,7 +16,7 @@ Tracking PostgreSQL SQL feature coverage in `src/sql.ohm` / `src/ast.ts`.
 - [x] `FROM <table>`
 - [x] `WHERE`
 - [x] `LIMIT`
-- [x] `DISTINCT` / `DISTINCT ON (…)`
+- [x] `DISTINCT`
 - [x] `JOIN` (see JOIN section below)
 - [x] `GROUP BY`
 - [x] `HAVING`
@@ -45,8 +45,8 @@ Tracking PostgreSQL SQL feature coverage in `src/sql.ohm` / `src/ast.ts`.
 - [x] `DISTINCT` inside aggregates: `COUNT(DISTINCT col)`
 - [ ] Window functions: `ROW_NUMBER() OVER (…)`, `RANK()`, `LAG()`, …
 - [ ] `OVER (PARTITION BY … ORDER BY … ROWS/RANGE …)`
-- [ ] `CASE WHEN … THEN … ELSE … END`
-- [ ] `CAST(expr AS type)` / `expr::type`
+- [x] `CASE WHEN … THEN … ELSE … END`
+- [x] `CAST(expr AS type)`
 - [ ] Subquery in SELECT list (scalar subquery)
 - [ ] `ARRAY[…]` constructor
 - [ ] Row constructor: `ROW(a, b, c)`
@@ -65,7 +65,7 @@ Tracking PostgreSQL SQL feature coverage in `src/sql.ohm` / `src/ast.ts`.
 - [ ] Escape strings (`E'…'`)
 - [ ] Unicode strings (`U&'…'`)
 - [ ] Byte literals (`'\x…'`, `B'…'`)
-- [ ] Numeric with sign (`+1`, `-1`)
+- [x] Unary minus on numeric (`-1`, `-expr`) — `+1` not supported
 
 ---
 
@@ -113,13 +113,13 @@ Tracking PostgreSQL SQL feature coverage in `src/sql.ohm` / `src/ast.ts`.
 - [x] `IN (…)` list / `NOT IN (…)`
 - [ ] `IN (subquery)` / `NOT IN (subquery)`
 - [x] `LIKE` / `NOT LIKE`
-- [x] `ILIKE` / `NOT ILIKE` (case-insensitive, PostgreSQL)
+- [ ] `ILIKE` / `NOT ILIKE` (case-insensitive, PostgreSQL)
 - [ ] `SIMILAR TO`
 - [ ] `~`, `~*`, `!~`, `!~*` (regex operators)
 - [ ] `EXISTS (subquery)`
 - [ ] `ANY` / `ALL` / `SOME` (subquery comparisons)
 - [ ] `DISTINCT FROM` / `NOT DISTINCT FROM`
-- [ ] Arithmetic expressions on either side of comparisons
+- [x] Arithmetic expressions on either side of comparisons
 - [x] Function calls in comparisons
 - [x] Right-hand side column reference (col = col)
 - [x] Right-hand side integer / boolean / NULL literals
@@ -150,12 +150,12 @@ Tracking PostgreSQL SQL feature coverage in `src/sql.ohm` / `src/ast.ts`.
 
 ## Aggregate & GROUP BY
 
-- [ ] `GROUP BY col, …`
-- [ ] `GROUP BY` with expression
+- [x] `GROUP BY col, …`
+- [x] `GROUP BY` with expression
 - [ ] `GROUP BY ROLLUP (…)`
 - [ ] `GROUP BY CUBE (…)`
 - [ ] `GROUP BY GROUPING SETS (…)`
-- [ ] `HAVING <condition>`
+- [x] `HAVING <condition>`
 - [ ] Filter clause on aggregates: `COUNT(*) FILTER (WHERE …)`
 
 ---
@@ -205,7 +205,7 @@ Tracking PostgreSQL SQL feature coverage in `src/sql.ohm` / `src/ast.ts`.
 ## Comments
 
 - [x] Single-line comments (`-- …`)
-- [ ] Block comments (`/* … */`)
+- [x] Block comments (`/* … */`)
 
 ---
 

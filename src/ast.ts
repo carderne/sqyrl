@@ -37,9 +37,9 @@ export interface SelectStatement {
   offset: OffsetClause | null;
 }
 
-export type Distinct =
-  | { readonly type: "distinct"; kind: "plain" }
-  | { readonly type: "distinct"; kind: "on"; exprs: WhereValue[] };
+export interface Distinct {
+  readonly type: "distinct";
+}
 
 export interface GroupByClause {
   readonly type: "group_by";
@@ -169,7 +169,7 @@ export interface WhereIn {
   list: WhereValue[];
 }
 
-export type LikeOp = "like" | "ilike";
+export type LikeOp = "like";
 
 export interface WhereLike {
   readonly type: "where_like";

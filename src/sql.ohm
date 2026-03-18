@@ -4,9 +4,7 @@ SQL {
   SelectStatement
     = select Distinct? ColumnList from TableRef JoinClause* WhereClause? GroupByClause? HavingClause? OrderByClause? LimitClause? OffsetClause?
 
-  Distinct
-    = distinct on "(" NonemptyListOf<WhereValue, ","> ")"  -- on
-    | distinct                                              -- plain
+  Distinct = distinct
 
   // --- Columns ---
 
@@ -99,8 +97,7 @@ SQL {
     | WhereValue in "(" NonemptyListOf<WhereValue, ","> ")"      -- in
     | WhereValue not like WhereValue            -- notLike
     | WhereValue like WhereValue                -- like
-    | WhereValue not ilike WhereValue           -- notIlike
-    | WhereValue ilike WhereValue               -- ilike
+
 
   compOp = "<>" | "!=" | "<=" | ">=" | "<" | ">" | "="
 
@@ -120,7 +117,7 @@ SQL {
     | UnaryExpr
 
   UnaryExpr
-    = "-" AtomExpr           -- neg
+    = "-" AtomExpr  -- neg
     | AtomExpr
 
   AtomExpr
@@ -224,7 +221,6 @@ SQL {
   between  = caseInsensitive<"between">  ~identPart
   in       = caseInsensitive<"in">       ~identPart
   like     = caseInsensitive<"like">     ~identPart
-  ilike    = caseInsensitive<"ilike">    ~identPart
   unknown  = caseInsensitive<"unknown">  ~identPart
   case     = caseInsensitive<"case">     ~identPart
   when     = caseInsensitive<"when">     ~identPart
@@ -236,12 +232,13 @@ SQL {
   keyword = select | from | as | where | and | or | limit | not | null | is
           | join | inner | left | right | full | outer | cross | natural | on | using
           | order | by | asc | desc | nulls | first | last | offset | group | having | distinct
-          | between | in | like | ilike | unknown
+          | between | in | like | unknown
           | case | when | then | else | end_kw | cast
   identPart = alnum | "_"
 
   // --- Comments & whitespace ---
 
-  space += lineComment
-  lineComment = "--" (~"\n" any)*
+  space += lineComment | blockComment
+  lineComment  = "--" (~"\n" any)*
+  blockComment = "/*" (~"*/" any)* "*/"
 }

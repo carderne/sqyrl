@@ -28,15 +28,6 @@ export interface SQLActionDict<T> extends BaseActionDict<T> {
     arg10: IterationNode,
     arg11: IterationNode,
   ) => T;
-  Distinct_on?: (
-    this: NonterminalNode,
-    arg0: NonterminalNode,
-    arg1: NonterminalNode,
-    arg2: TerminalNode,
-    arg3: NonterminalNode,
-    arg4: TerminalNode,
-  ) => T;
-  Distinct_plain?: (this: NonterminalNode, arg0: NonterminalNode) => T;
   Distinct?: (this: NonterminalNode, arg0: NonterminalNode) => T;
   ColumnList?: (this: NonterminalNode, arg0: NonterminalNode) => T;
   ColumnEntry_aliased?: (
@@ -246,19 +237,6 @@ export interface SQLActionDict<T> extends BaseActionDict<T> {
     arg1: NonterminalNode,
     arg2: NonterminalNode,
   ) => T;
-  WhereComparison_notIlike?: (
-    this: NonterminalNode,
-    arg0: NonterminalNode,
-    arg1: NonterminalNode,
-    arg2: NonterminalNode,
-    arg3: NonterminalNode,
-  ) => T;
-  WhereComparison_ilike?: (
-    this: NonterminalNode,
-    arg0: NonterminalNode,
-    arg1: NonterminalNode,
-    arg2: NonterminalNode,
-  ) => T;
   WhereComparison?: (this: NonterminalNode, arg0: NonterminalNode) => T;
   compOp?: (this: NonterminalNode, arg0: TerminalNode) => T;
   WhereValue?: (this: NonterminalNode, arg0: NonterminalNode) => T;
@@ -459,7 +437,6 @@ export interface SQLActionDict<T> extends BaseActionDict<T> {
   between?: (this: NonterminalNode, arg0: NonterminalNode) => T;
   in?: (this: NonterminalNode, arg0: NonterminalNode) => T;
   like?: (this: NonterminalNode, arg0: NonterminalNode) => T;
-  ilike?: (this: NonterminalNode, arg0: NonterminalNode) => T;
   unknown?: (this: NonterminalNode, arg0: NonterminalNode) => T;
   case?: (this: NonterminalNode, arg0: NonterminalNode) => T;
   when?: (this: NonterminalNode, arg0: NonterminalNode) => T;
@@ -471,6 +448,12 @@ export interface SQLActionDict<T> extends BaseActionDict<T> {
   identPart?: (this: NonterminalNode, arg0: NonterminalNode | TerminalNode) => T;
   space?: (this: NonterminalNode, arg0: NonterminalNode | TerminalNode) => T;
   lineComment?: (this: NonterminalNode, arg0: TerminalNode, arg1: IterationNode) => T;
+  blockComment?: (
+    this: NonterminalNode,
+    arg0: TerminalNode,
+    arg1: IterationNode,
+    arg2: TerminalNode,
+  ) => T;
 }
 
 export interface SQLSemantics extends Semantics {

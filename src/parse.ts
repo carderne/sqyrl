@@ -235,19 +235,8 @@ semantics.addOperation<ASTNode>("toAST()", {
     } satisfies TableName as ASTNode;
   },
 
-  Distinct_on(_distinct, _on, _open, exprs, _close) {
-    return {
-      type: "distinct",
-      kind: "on",
-      exprs: exprs.asIteration().children.map((e) => e.toAST() as WhereValue),
-    } satisfies Distinct as ASTNode;
-  },
-
-  Distinct_plain(_distinct) {
-    return {
-      type: "distinct",
-      kind: "plain",
-    } satisfies Distinct as ASTNode;
+  Distinct(_distinct) {
+    return { type: "distinct" } satisfies Distinct as ASTNode;
   },
 
   GroupByClause(_group, _by, items) {
@@ -531,26 +520,6 @@ semantics.addOperation<ASTNode>("toAST()", {
       type: "where_like",
       not: true,
       op: "like" as LikeOp,
-      expr: expr.toAST() as WhereValue,
-      pattern: pattern.toAST() as WhereValue,
-    } satisfies WhereLike as ASTNode;
-  },
-
-  WhereComparison_ilike(expr, _ilike, pattern) {
-    return {
-      type: "where_like",
-      not: false,
-      op: "ilike" as LikeOp,
-      expr: expr.toAST() as WhereValue,
-      pattern: pattern.toAST() as WhereValue,
-    } satisfies WhereLike as ASTNode;
-  },
-
-  WhereComparison_notIlike(expr, _not, _ilike, pattern) {
-    return {
-      type: "where_like",
-      not: true,
-      op: "ilike" as LikeOp,
       expr: expr.toAST() as WhereValue,
       pattern: pattern.toAST() as WhereValue,
     } satisfies WhereLike as ASTNode;
