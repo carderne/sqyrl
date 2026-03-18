@@ -49,15 +49,31 @@ SQL {
 
   WherePrimary
     = "(" WhereExpr ")"    -- paren
+    | not WherePrimary     -- not
     | WhereComparison
 
-  WhereComparison = ColumnRef "=" stringLiteral
+  WhereComparison
+    = ColumnRef compOp WhereValue   -- compare
+    | ColumnRef is not null         -- isNotNull
+    | ColumnRef is null             -- isNull
+
+  compOp = "<>" | "!=" | "<=" | ">=" | "<" | ">" | "="
+
+  WhereValue
+    = stringLiteral   -- string
+    | floatLiteral    -- float
+    | integer         -- integer
+    | boolLiteral     -- bool
+    | null            -- null
 
   ColumnRef
     = identifier "." identifier  -- qualified
     | identifier                 -- simple
 
   stringLiteral = "'" (~"'" any)* "'"
+  floatLiteral  = digit+ "." digit+
+
+  boolLiteral = (caseInsensitive<"true"> | caseInsensitive<"false">) ~identPart
 
   // --- LIMIT ---
 
@@ -77,8 +93,11 @@ SQL {
   and    = caseInsensitive<"and">    ~identPart
   or     = caseInsensitive<"or">     ~identPart
   limit  = caseInsensitive<"limit">  ~identPart
+  not    = caseInsensitive<"not">    ~identPart
+  null   = caseInsensitive<"null">   ~identPart
+  is     = caseInsensitive<"is">     ~identPart
 
-  keyword = select | from | as | where | and | or | limit
+  keyword = select | from | as | where | and | or | limit | not | null | is
   identPart = alnum | "_"
 
   // --- Comments & whitespace ---

@@ -4,6 +4,7 @@ import type {
   Column,
   ColumnExpr,
   ColumnRef,
+  ComparisonOperator,
   LimitClause,
   SelectFrom,
   SelectStatement,
@@ -11,7 +12,10 @@ import type {
   TableRef,
   WhereComparison,
   WhereExpr,
+  WhereIsNull,
+  WhereNot,
   WhereRoot,
+  WhereValue,
 } from "./ast";
 import grammar, { type SQLSemantics } from "./sql.ohm-bundle";
 
@@ -176,13 +180,75 @@ semantics.addOperation<ASTNode>("toAST()", {
     return expr.toAST();
   },
 
-  WhereComparison(colRef, _eq, value) {
+  WherePrimary_not(_not, expr) {
+    return {
+      type: "where_not",
+      expr: expr.toAST() as WhereExpr,
+    } satisfies WhereNot as ASTNode;
+  },
+
+  WhereComparison_compare(colRef, op, value) {
     return {
       type: "where_comparison",
-      operator: "=",
+      operator: op.sourceString as ComparisonOperator,
       column: colRef.toAST() as ColumnRef,
-      value: value.toAST() as string,
+      value: value.toAST() as WhereValue,
     } satisfies WhereComparison as ASTNode;
+  },
+
+  WhereComparison_isNotNull(colRef, _is, _not, _null) {
+    return {
+      type: "where_is_null",
+      not: true,
+      column: colRef.toAST() as ColumnRef,
+    } satisfies WhereIsNull as ASTNode;
+  },
+
+  WhereComparison_isNull(colRef, _is, _null) {
+    return {
+      type: "where_is_null",
+      not: false,
+      column: colRef.toAST() as ColumnRef,
+    } satisfies WhereIsNull as ASTNode;
+  },
+
+  WhereValue_string(s) {
+    return {
+      type: "where_value",
+      kind: "string",
+      value: s.toAST() as string,
+    } satisfies WhereValue as ASTNode;
+  },
+
+  WhereValue_integer(n) {
+    return {
+      type: "where_value",
+      kind: "integer",
+      value: n.toAST() as number,
+    } satisfies WhereValue as ASTNode;
+  },
+
+  WhereValue_float(f) {
+    return {
+      type: "where_value",
+      kind: "float",
+      value: parseFloat(f.sourceString),
+    } satisfies WhereValue as ASTNode;
+  },
+
+  WhereValue_bool(b) {
+    return {
+      type: "where_value",
+      kind: "bool",
+      value: b.sourceString.toLowerCase() === "true",
+    } satisfies WhereValue as ASTNode;
+  },
+
+  WhereValue_null(_null) {
+    return {
+      type: "where_value",
+      kind: "null",
+    } satisfies WhereValue as ASTNode;
   },
 
   ColumnRef_qualified(table, _dot, name) {
@@ -202,6 +268,10 @@ semantics.addOperation<ASTNode>("toAST()", {
 
   stringLiteral(_open, chars, _close) {
     return chars.sourceString as unknown as ASTNode;
+  },
+
+  floatLiteral(_int, _dot, _frac) {
+    return parseFloat(this.sourceString) as unknown as ASTNode;
   },
 
   LimitClause(_limit, integer) {

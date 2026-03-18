@@ -92,13 +92,35 @@ export interface SQLActionDict<T> extends BaseActionDict<T> {
     arg1: NonterminalNode,
     arg2: TerminalNode,
   ) => T;
+  WherePrimary_not?: (this: NonterminalNode, arg0: NonterminalNode, arg1: NonterminalNode) => T;
   WherePrimary?: (this: NonterminalNode, arg0: NonterminalNode) => T;
-  WhereComparison?: (
+  WhereComparison_compare?: (
     this: NonterminalNode,
     arg0: NonterminalNode,
-    arg1: TerminalNode,
+    arg1: NonterminalNode,
     arg2: NonterminalNode,
   ) => T;
+  WhereComparison_isNotNull?: (
+    this: NonterminalNode,
+    arg0: NonterminalNode,
+    arg1: NonterminalNode,
+    arg2: NonterminalNode,
+    arg3: NonterminalNode,
+  ) => T;
+  WhereComparison_isNull?: (
+    this: NonterminalNode,
+    arg0: NonterminalNode,
+    arg1: NonterminalNode,
+    arg2: NonterminalNode,
+  ) => T;
+  WhereComparison?: (this: NonterminalNode, arg0: NonterminalNode) => T;
+  compOp?: (this: NonterminalNode, arg0: TerminalNode) => T;
+  WhereValue_string?: (this: NonterminalNode, arg0: NonterminalNode) => T;
+  WhereValue_float?: (this: NonterminalNode, arg0: NonterminalNode) => T;
+  WhereValue_integer?: (this: NonterminalNode, arg0: NonterminalNode) => T;
+  WhereValue_bool?: (this: NonterminalNode, arg0: NonterminalNode) => T;
+  WhereValue_null?: (this: NonterminalNode, arg0: NonterminalNode) => T;
+  WhereValue?: (this: NonterminalNode, arg0: NonterminalNode) => T;
   ColumnRef_qualified?: (
     this: NonterminalNode,
     arg0: NonterminalNode,
@@ -113,6 +135,13 @@ export interface SQLActionDict<T> extends BaseActionDict<T> {
     arg1: IterationNode,
     arg2: TerminalNode,
   ) => T;
+  floatLiteral?: (
+    this: NonterminalNode,
+    arg0: IterationNode,
+    arg1: TerminalNode,
+    arg2: IterationNode,
+  ) => T;
+  boolLiteral?: (this: NonterminalNode, arg0: NonterminalNode) => T;
   LimitClause?: (this: NonterminalNode, arg0: NonterminalNode, arg1: NonterminalNode) => T;
   identifier?: (this: NonterminalNode, arg0: NonterminalNode, arg1: IterationNode) => T;
   integer?: (this: NonterminalNode, arg0: IterationNode) => T;
@@ -123,6 +152,9 @@ export interface SQLActionDict<T> extends BaseActionDict<T> {
   and?: (this: NonterminalNode, arg0: NonterminalNode) => T;
   or?: (this: NonterminalNode, arg0: NonterminalNode) => T;
   limit?: (this: NonterminalNode, arg0: NonterminalNode) => T;
+  not?: (this: NonterminalNode, arg0: NonterminalNode) => T;
+  null?: (this: NonterminalNode, arg0: NonterminalNode) => T;
+  is?: (this: NonterminalNode, arg0: NonterminalNode) => T;
   keyword?: (this: NonterminalNode, arg0: NonterminalNode) => T;
   identPart?: (this: NonterminalNode, arg0: NonterminalNode | TerminalNode) => T;
   space?: (this: NonterminalNode, arg0: NonterminalNode | TerminalNode) => T;

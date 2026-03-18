@@ -11,8 +11,11 @@ import type {
   Terminal,
   WhereAnd,
   WhereComparison,
+  WhereIsNull,
+  WhereNot,
   WhereOr,
   WhereRoot,
+  WhereValue,
 } from "./ast";
 import { unreachable } from "./utils";
 
@@ -52,8 +55,14 @@ function r(node: ASTNode | Terminal): string {
       return handleWhereAnd(node);
     case "where_or":
       return handleWhereOr(node);
+    case "where_not":
+      return handleWhereNot(node);
     case "where_comparison":
       return handleWhereComparison(node);
+    case "where_is_null":
+      return handleWhereIsNull(node);
+    case "where_value":
+      return handleWhereValue(node);
     case "column":
       return handleColumn(node);
     case "column_expr":
@@ -101,8 +110,33 @@ function handleWhereOr(node: WhereOr): string {
   return `(${r(node.left)} OR ${r(node.right)})`;
 }
 
+function handleWhereNot(node: WhereNot): string {
+  return `NOT ${r(node.expr)}`;
+}
+
+function handleWhereIsNull(node: WhereIsNull): string {
+  return `${r(node.column)} IS${node.not ? " NOT" : ""} NULL`;
+}
+
 function handleWhereComparison(node: WhereComparison): string {
-  return `${r(node.column)} ${r(node.operator)} '${node.value}'`;
+  return `${r(node.column)} ${node.operator} ${r(node.value)}`;
+}
+
+function handleWhereValue(node: WhereValue): string {
+  switch (node.kind) {
+    case "string":
+      return `'${node.value}'`;
+    case "integer":
+      return String(node.value);
+    case "float":
+      return String(node.value);
+    case "bool":
+      return node.value ? "TRUE" : "FALSE";
+    case "null":
+      return "NULL";
+    default:
+      return unreachable(node);
+  }
 }
 
 function handleColumn(node: Column): string {

@@ -7,6 +7,7 @@ export type ASTNode =
   | ColumnExpr
   | WhereRoot
   | WhereExpr
+  | WhereValue
   | ColumnRef
   | LimitClause;
 
@@ -35,7 +36,7 @@ export type WhereRoot = {
   inner: WhereExpr;
 };
 
-export type WhereExpr = WhereAnd | WhereOr | WhereComparison;
+export type WhereExpr = WhereAnd | WhereOr | WhereNot | WhereComparison | WhereIsNull;
 
 export interface WhereAnd {
   readonly type: "where_and";
@@ -49,11 +50,31 @@ export interface WhereOr {
   right: WhereExpr;
 }
 
+export type ComparisonOperator = "=" | "<>" | "!=" | "<" | ">" | "<=" | ">=";
+
+export interface WhereNot {
+  readonly type: "where_not";
+  expr: WhereExpr;
+}
+
+export interface WhereIsNull {
+  readonly type: "where_is_null";
+  not: boolean;
+  column: ColumnRef;
+}
+
+export type WhereValue =
+  | { readonly type: "where_value"; kind: "string"; value: string }
+  | { readonly type: "where_value"; kind: "integer"; value: number }
+  | { readonly type: "where_value"; kind: "float"; value: number }
+  | { readonly type: "where_value"; kind: "bool"; value: boolean }
+  | { readonly type: "where_value"; kind: "null" };
+
 export interface WhereComparison {
   readonly type: "where_comparison";
-  operator: "=";
+  operator: ComparisonOperator;
   column: ColumnRef;
-  value: string;
+  value: WhereValue;
 }
 
 export interface ColumnRef {

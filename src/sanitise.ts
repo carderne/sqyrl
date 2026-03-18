@@ -1,4 +1,4 @@
-import type { SelectStatement, WhereComparison } from "./ast";
+import type { SelectStatement, WhereComparison, WhereValue } from "./ast";
 
 /*
  * Sanitises the supplied Select statement by adding a WHERE clause e.g.
@@ -17,6 +17,7 @@ export function sanitiseSql({
   col: string;
   value: string;
 }): SelectStatement {
+  const newValue: WhereValue = { type: "where_value", kind: "string", value };
   const newClause: WhereComparison = {
     type: "where_comparison",
     operator: "=",
@@ -25,7 +26,7 @@ export function sanitiseSql({
       table: `${schema}.${table}`,
       name: col,
     },
-    value,
+    value: newValue,
   };
 
   return {

@@ -99,6 +99,8 @@ test("throws on invalid SQL", () => {
   expect(() => parseSql("INVALID")).toThrow();
 });
 
+const strVal = (v: string) => ({ type: "where_value", kind: "string", value: v }) as const;
+
 test("parses simple WHERE clause", () => {
   const ast = parseSql("SELECT foo FROM bar WHERE baz = 'hello'");
   expect(ast.where).toEqual({
@@ -107,7 +109,7 @@ test("parses simple WHERE clause", () => {
       type: "where_comparison",
       operator: "=",
       column: { type: "column_ref", name: "baz" },
-      value: "hello",
+      value: strVal("hello"),
     },
   });
 });
@@ -120,7 +122,7 @@ test("parses WHERE with qualified column ref", () => {
       type: "where_comparison",
       operator: "=",
       column: { type: "column_ref", table: "t", name: "baz" },
-      value: "hello",
+      value: strVal("hello"),
     },
   });
 });
@@ -135,13 +137,13 @@ test("parses WHERE with AND", () => {
         type: "where_comparison",
         operator: "=",
         column: { type: "column_ref", name: "a" },
-        value: "1",
+        value: strVal("1"),
       },
       right: {
         type: "where_comparison",
         operator: "=",
         column: { type: "column_ref", name: "b" },
-        value: "2",
+        value: strVal("2"),
       },
     },
   });
@@ -157,13 +159,13 @@ test("parses WHERE with OR", () => {
         type: "where_comparison",
         operator: "=",
         column: { type: "column_ref", name: "a" },
-        value: "1",
+        value: strVal("1"),
       },
       right: {
         type: "where_comparison",
         operator: "=",
         column: { type: "column_ref", name: "b" },
-        value: "2",
+        value: strVal("2"),
       },
     },
   });
@@ -180,7 +182,7 @@ test("parses WHERE with AND having higher precedence than OR", () => {
         type: "where_comparison",
         operator: "=",
         column: { type: "column_ref", name: "a" },
-        value: "1",
+        value: strVal("1"),
       },
       right: {
         type: "where_and",
@@ -188,13 +190,13 @@ test("parses WHERE with AND having higher precedence than OR", () => {
           type: "where_comparison",
           operator: "=",
           column: { type: "column_ref", name: "b" },
-          value: "2",
+          value: strVal("2"),
         },
         right: {
           type: "where_comparison",
           operator: "=",
           column: { type: "column_ref", name: "c" },
-          value: "3",
+          value: strVal("3"),
         },
       },
     },
@@ -214,20 +216,20 @@ test("parses WHERE with parens overriding precedence", () => {
           type: "where_comparison",
           operator: "=",
           column: { type: "column_ref", name: "a" },
-          value: "1",
+          value: strVal("1"),
         },
         right: {
           type: "where_comparison",
           operator: "=",
           column: { type: "column_ref", name: "b" },
-          value: "2",
+          value: strVal("2"),
         },
       },
       right: {
         type: "where_comparison",
         operator: "=",
         column: { type: "column_ref", name: "c" },
-        value: "3",
+        value: strVal("3"),
       },
     },
   });
