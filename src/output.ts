@@ -19,8 +19,12 @@ import type {
   TableRef,
   Terminal,
   WhereAnd,
+  WhereBetween,
   WhereComparison,
+  WhereIn,
+  WhereIsBool,
   WhereIsNull,
+  WhereLike,
   WhereNot,
   WhereOr,
   WhereRoot,
@@ -87,6 +91,14 @@ function r(node: ASTNode | Terminal): string {
       return handleWhereComparison(node);
     case "where_is_null":
       return handleWhereIsNull(node);
+    case "where_is_bool":
+      return handleWhereIsBool(node);
+    case "where_between":
+      return handleWhereBetween(node);
+    case "where_in":
+      return handleWhereIn(node);
+    case "where_like":
+      return handleWhereLike(node);
     case "where_value":
       return handleWhereValue(node);
     case "column":
@@ -202,6 +214,26 @@ function handleWhereNot(node: WhereNot): string {
 
 function handleWhereIsNull(node: WhereIsNull): string {
   return `${r(node.expr)} IS${node.not ? " NOT" : ""} NULL`;
+}
+
+function handleWhereIsBool(node: WhereIsBool): string {
+  const notStr = node.not ? " NOT" : "";
+  const target = node.target === "unknown" ? "UNKNOWN" : node.target ? "TRUE" : "FALSE";
+  return `${r(node.expr)} IS${notStr} ${target}`;
+}
+
+function handleWhereBetween(node: WhereBetween): string {
+  return `${r(node.expr)}${node.not ? " NOT" : ""} BETWEEN ${r(node.low)} AND ${r(node.high)}`;
+}
+
+function handleWhereIn(node: WhereIn): string {
+  const list = node.list.map((v) => r(v)).join(", ");
+  return `${r(node.expr)}${node.not ? " NOT" : ""} IN (${list})`;
+}
+
+function handleWhereLike(node: WhereLike): string {
+  const notStr = node.not ? " NOT" : "";
+  return `${r(node.expr)}${notStr} ${node.op.toUpperCase()} ${r(node.pattern)}`;
 }
 
 function handleWhereComparison(node: WhereComparison): string {

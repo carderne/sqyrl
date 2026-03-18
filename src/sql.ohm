@@ -89,9 +89,21 @@ SQL {
     | WhereComparison
 
   WhereComparison
-    = WhereValue compOp WhereValue  -- compare
-    | WhereValue is not null        -- isNotNull
-    | WhereValue is null            -- isNull
+    = WhereValue compOp WhereValue              -- compare
+    | WhereValue is not null                    -- isNotNull
+    | WhereValue is null                        -- isNull
+    | WhereValue is not boolLiteral             -- isNotBool
+    | WhereValue is boolLiteral                 -- isBool
+    | WhereValue is unknown                     -- isUnknown
+    | WhereValue is not unknown                 -- isNotUnknown
+    | WhereValue not between WhereValue and WhereValue  -- notBetween
+    | WhereValue between WhereValue and WhereValue      -- between
+    | WhereValue not in "(" NonemptyListOf<WhereValue, ","> ")"  -- notIn
+    | WhereValue in "(" NonemptyListOf<WhereValue, ","> ")"      -- in
+    | WhereValue not like WhereValue            -- notLike
+    | WhereValue like WhereValue                -- like
+    | WhereValue not ilike WhereValue           -- notIlike
+    | WhereValue ilike WhereValue               -- ilike
 
   compOp = "<>" | "!=" | "<=" | ">=" | "<" | ">" | "="
 
@@ -175,11 +187,17 @@ SQL {
   nulls   = caseInsensitive<"nulls">   ~identPart
   first   = caseInsensitive<"first">   ~identPart
   last    = caseInsensitive<"last">    ~identPart
-  offset  = caseInsensitive<"offset">  ~identPart
+  offset   = caseInsensitive<"offset">   ~identPart
+  between  = caseInsensitive<"between">  ~identPart
+  in       = caseInsensitive<"in">       ~identPart
+  like     = caseInsensitive<"like">     ~identPart
+  ilike    = caseInsensitive<"ilike">    ~identPart
+  unknown  = caseInsensitive<"unknown">  ~identPart
 
   keyword = select | from | as | where | and | or | limit | not | null | is
           | join | inner | left | right | full | outer | cross | natural | on | using
           | order | by | asc | desc | nulls | first | last | offset | group | having | distinct
+          | between | in | like | ilike | unknown
   identPart = alnum | "_"
 
   // --- Comments & whitespace ---

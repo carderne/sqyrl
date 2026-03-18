@@ -181,6 +181,92 @@ export interface SQLActionDict<T> extends BaseActionDict<T> {
     arg1: NonterminalNode,
     arg2: NonterminalNode,
   ) => T;
+  WhereComparison_isNotBool?: (
+    this: NonterminalNode,
+    arg0: NonterminalNode,
+    arg1: NonterminalNode,
+    arg2: NonterminalNode,
+    arg3: NonterminalNode,
+  ) => T;
+  WhereComparison_isBool?: (
+    this: NonterminalNode,
+    arg0: NonterminalNode,
+    arg1: NonterminalNode,
+    arg2: NonterminalNode,
+  ) => T;
+  WhereComparison_isUnknown?: (
+    this: NonterminalNode,
+    arg0: NonterminalNode,
+    arg1: NonterminalNode,
+    arg2: NonterminalNode,
+  ) => T;
+  WhereComparison_isNotUnknown?: (
+    this: NonterminalNode,
+    arg0: NonterminalNode,
+    arg1: NonterminalNode,
+    arg2: NonterminalNode,
+    arg3: NonterminalNode,
+  ) => T;
+  WhereComparison_notBetween?: (
+    this: NonterminalNode,
+    arg0: NonterminalNode,
+    arg1: NonterminalNode,
+    arg2: NonterminalNode,
+    arg3: NonterminalNode,
+    arg4: NonterminalNode,
+    arg5: NonterminalNode,
+  ) => T;
+  WhereComparison_between?: (
+    this: NonterminalNode,
+    arg0: NonterminalNode,
+    arg1: NonterminalNode,
+    arg2: NonterminalNode,
+    arg3: NonterminalNode,
+    arg4: NonterminalNode,
+  ) => T;
+  WhereComparison_notIn?: (
+    this: NonterminalNode,
+    arg0: NonterminalNode,
+    arg1: NonterminalNode,
+    arg2: NonterminalNode,
+    arg3: TerminalNode,
+    arg4: NonterminalNode,
+    arg5: TerminalNode,
+  ) => T;
+  WhereComparison_in?: (
+    this: NonterminalNode,
+    arg0: NonterminalNode,
+    arg1: NonterminalNode,
+    arg2: TerminalNode,
+    arg3: NonterminalNode,
+    arg4: TerminalNode,
+  ) => T;
+  WhereComparison_notLike?: (
+    this: NonterminalNode,
+    arg0: NonterminalNode,
+    arg1: NonterminalNode,
+    arg2: NonterminalNode,
+    arg3: NonterminalNode,
+  ) => T;
+  WhereComparison_like?: (
+    this: NonterminalNode,
+    arg0: NonterminalNode,
+    arg1: NonterminalNode,
+    arg2: NonterminalNode,
+  ) => T;
+  WhereComparison_notIlike?: (
+    this: NonterminalNode,
+    arg0: NonterminalNode,
+    arg1: NonterminalNode,
+    arg2: NonterminalNode,
+    arg3: NonterminalNode,
+  ) => T;
+  WhereComparison_ilike?: (
+    this: NonterminalNode,
+    arg0: NonterminalNode,
+    arg1: NonterminalNode,
+    arg2: NonterminalNode,
+  ) => T;
   WhereComparison?: (this: NonterminalNode, arg0: NonterminalNode) => T;
   compOp?: (this: NonterminalNode, arg0: TerminalNode) => T;
   WhereValue_func?: (this: NonterminalNode, arg0: NonterminalNode) => T;
@@ -272,6 +358,11 @@ export interface SQLActionDict<T> extends BaseActionDict<T> {
   first?: (this: NonterminalNode, arg0: NonterminalNode) => T;
   last?: (this: NonterminalNode, arg0: NonterminalNode) => T;
   offset?: (this: NonterminalNode, arg0: NonterminalNode) => T;
+  between?: (this: NonterminalNode, arg0: NonterminalNode) => T;
+  in?: (this: NonterminalNode, arg0: NonterminalNode) => T;
+  like?: (this: NonterminalNode, arg0: NonterminalNode) => T;
+  ilike?: (this: NonterminalNode, arg0: NonterminalNode) => T;
+  unknown?: (this: NonterminalNode, arg0: NonterminalNode) => T;
   keyword?: (this: NonterminalNode, arg0: NonterminalNode) => T;
   identPart?: (this: NonterminalNode, arg0: NonterminalNode | TerminalNode) => T;
   space?: (this: NonterminalNode, arg0: NonterminalNode | TerminalNode) => T;

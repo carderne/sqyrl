@@ -19,6 +19,7 @@ export type ASTNode =
   | OrderByItem
   | LimitClause
   | OffsetClause;
+// Note: WhereIsBool, WhereBetween, WhereIn, WhereLike are covered by WhereExpr above
 
 export type Terminal = string | number | null | undefined;
 
@@ -108,7 +109,16 @@ export type WhereRoot = {
   inner: WhereExpr;
 };
 
-export type WhereExpr = WhereAnd | WhereOr | WhereNot | WhereComparison | WhereIsNull;
+export type WhereExpr =
+  | WhereAnd
+  | WhereOr
+  | WhereNot
+  | WhereComparison
+  | WhereIsNull
+  | WhereIsBool
+  | WhereBetween
+  | WhereIn
+  | WhereLike;
 
 export interface WhereAnd {
   readonly type: "where_and";
@@ -133,6 +143,40 @@ export interface WhereIsNull {
   readonly type: "where_is_null";
   not: boolean;
   expr: WhereValue;
+}
+
+export type IsBoolTarget = boolean | "unknown";
+
+export interface WhereIsBool {
+  readonly type: "where_is_bool";
+  not: boolean;
+  expr: WhereValue;
+  target: IsBoolTarget;
+}
+
+export interface WhereBetween {
+  readonly type: "where_between";
+  not: boolean;
+  expr: WhereValue;
+  low: WhereValue;
+  high: WhereValue;
+}
+
+export interface WhereIn {
+  readonly type: "where_in";
+  not: boolean;
+  expr: WhereValue;
+  list: WhereValue[];
+}
+
+export type LikeOp = "like" | "ilike";
+
+export interface WhereLike {
+  readonly type: "where_like";
+  not: boolean;
+  op: LikeOp;
+  expr: WhereValue;
+  pattern: WhereValue;
 }
 
 export type WhereValue =

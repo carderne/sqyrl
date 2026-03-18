@@ -53,6 +53,37 @@ test("CROSS JOIN and NATURAL JOIN", () => {
   expect(ast.joins[1]).toMatchObject({ type: "join", joinType: "natural", condition: null });
 });
 
+// --- BETWEEN, IN, LIKE, IS TRUE/FALSE/UNKNOWN ---
+
+test("BETWEEN and NOT BETWEEN", () => {
+  const sql = "SELECT id FROM t WHERE age BETWEEN 18 AND 65 AND score NOT BETWEEN 0 AND 50";
+  expect(outputSql(parseSql(sql))).toBe(
+    "SELECT id FROM t WHERE (age BETWEEN 18 AND 65 AND score NOT BETWEEN 0 AND 50)",
+  );
+});
+
+test("IN list and NOT IN list", () => {
+  const sql =
+    "SELECT id FROM t WHERE status IN ('active', 'pending') AND role NOT IN ('admin', 'root')";
+  expect(outputSql(parseSql(sql))).toBe(
+    "SELECT id FROM t WHERE (status IN ('active', 'pending') AND role NOT IN ('admin', 'root'))",
+  );
+});
+
+test("LIKE and ILIKE and negations", () => {
+  const sql = "SELECT id FROM t WHERE name LIKE '%foo%' AND email NOT ILIKE '%bar%'";
+  expect(outputSql(parseSql(sql))).toBe(
+    "SELECT id FROM t WHERE (name LIKE '%foo%' AND email NOT ILIKE '%bar%')",
+  );
+});
+
+test("IS TRUE / IS FALSE / IS UNKNOWN", () => {
+  const sql = "SELECT id FROM t WHERE active IS TRUE AND deleted IS NOT FALSE AND flag IS UNKNOWN";
+  expect(outputSql(parseSql(sql))).toBe(
+    "SELECT id FROM t WHERE ((active IS TRUE AND deleted IS NOT FALSE) AND flag IS UNKNOWN)",
+  );
+});
+
 // --- Function calls ---
 
 test("function calls in SELECT and WHERE", () => {

@@ -10,10 +10,12 @@ import type {
   FuncCallArg,
   GroupByClause,
   HavingClause,
+  IsBoolTarget,
   JoinClause,
   JoinCondition,
   JoinType,
   LimitClause,
+  LikeOp,
   NullsOrder,
   OffsetClause,
   OrderByClause,
@@ -23,9 +25,13 @@ import type {
   SortDirection,
   TableName,
   TableRef,
+  WhereBetween,
   WhereComparison,
   WhereExpr,
+  WhereIn,
+  WhereIsBool,
   WhereIsNull,
+  WhereLike,
   WhereNot,
   WhereRoot,
   WhereValue,
@@ -449,6 +455,120 @@ semantics.addOperation<ASTNode>("toAST()", {
       not: false,
       expr: expr.toAST() as WhereValue,
     } satisfies WhereIsNull as ASTNode;
+  },
+
+  WhereComparison_isNotBool(expr, _is, _not, b) {
+    return {
+      type: "where_is_bool",
+      not: true,
+      expr: expr.toAST() as WhereValue,
+      target: b.sourceString.toLowerCase() === "true",
+    } satisfies WhereIsBool as ASTNode;
+  },
+
+  WhereComparison_isBool(expr, _is, b) {
+    return {
+      type: "where_is_bool",
+      not: false,
+      expr: expr.toAST() as WhereValue,
+      target: b.sourceString.toLowerCase() === "true",
+    } satisfies WhereIsBool as ASTNode;
+  },
+
+  WhereComparison_isUnknown(expr, _is, _unknown) {
+    return {
+      type: "where_is_bool",
+      not: false,
+      expr: expr.toAST() as WhereValue,
+      target: "unknown",
+    } satisfies WhereIsBool as ASTNode;
+  },
+
+  WhereComparison_isNotUnknown(expr, _is, _not, _unknown) {
+    return {
+      type: "where_is_bool",
+      not: true,
+      expr: expr.toAST() as WhereValue,
+      target: "unknown" as IsBoolTarget,
+    } satisfies WhereIsBool as ASTNode;
+  },
+
+  WhereComparison_between(expr, _between, low, _and, high) {
+    return {
+      type: "where_between",
+      not: false,
+      expr: expr.toAST() as WhereValue,
+      low: low.toAST() as WhereValue,
+      high: high.toAST() as WhereValue,
+    } satisfies WhereBetween as ASTNode;
+  },
+
+  WhereComparison_notBetween(expr, _not, _between, low, _and, high) {
+    return {
+      type: "where_between",
+      not: true,
+      expr: expr.toAST() as WhereValue,
+      low: low.toAST() as WhereValue,
+      high: high.toAST() as WhereValue,
+    } satisfies WhereBetween as ASTNode;
+  },
+
+  WhereComparison_in(expr, _in, _open, list, _close) {
+    return {
+      type: "where_in",
+      not: false,
+      expr: expr.toAST() as WhereValue,
+      list: list.asIteration().children.map((v) => v.toAST() as WhereValue),
+    } satisfies WhereIn as ASTNode;
+  },
+
+  WhereComparison_notIn(expr, _not, _in, _open, list, _close) {
+    return {
+      type: "where_in",
+      not: true,
+      expr: expr.toAST() as WhereValue,
+      list: list.asIteration().children.map((v) => v.toAST() as WhereValue),
+    } satisfies WhereIn as ASTNode;
+  },
+
+  WhereComparison_like(expr, _like, pattern) {
+    return {
+      type: "where_like",
+      not: false,
+      op: "like" as LikeOp,
+      expr: expr.toAST() as WhereValue,
+      pattern: pattern.toAST() as WhereValue,
+    } satisfies WhereLike as ASTNode;
+  },
+
+  WhereComparison_notLike(expr, _not, _like, pattern) {
+    return {
+      type: "where_like",
+      not: true,
+      op: "like" as LikeOp,
+      expr: expr.toAST() as WhereValue,
+      pattern: pattern.toAST() as WhereValue,
+    } satisfies WhereLike as ASTNode;
+  },
+
+  WhereComparison_ilike(expr, _ilike, pattern) {
+    return {
+      type: "where_like",
+      not: false,
+      op: "ilike" as LikeOp,
+      expr: expr.toAST() as WhereValue,
+      pattern: pattern.toAST() as WhereValue,
+    } satisfies WhereLike as ASTNode;
+  },
+
+  WhereComparison_notIlike(expr, _not, _ilike, pattern) {
+    return {
+      type: "where_like",
+      not: true,
+      op: "ilike" as LikeOp,
+      expr: expr.toAST() as WhereValue,
+      pattern: pattern.toAST() as WhereValue,
+    } satisfies WhereLike as ASTNode;
   },
 
   WhereValue_func(funcCall) {
