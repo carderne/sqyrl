@@ -8,10 +8,14 @@ agent-sql works by fully parsing the supplied SQL query into an AST.
 The grammar ONLY accepts `SELECT` statements. Anything else is an error.
 CTEs and other complex things that we aren't confident of securing: error.
 
-Then we ensure that that the needed tenant table is somewhere in the query,
-and add a `WHERE` clause ensuring that only values from the supplied ID are returned.
+It ensures that that the needed tenant table is somewhere in the query,
+and adds a `WHERE` clause ensuring that only values from the supplied ID are returned.
+Then it checks that the tables and `JOIN`s follow the schema, preventing sneaky joins.
 
-Apparently this is how [Trigger.dev does it](https://x.com/mattaitken/status/2033928542975639785). And [Cloudflare](https://x.com/thomas_ankcorn/status/2033931057133748330).
+Finally, we throw in a `LIMIT` clause (configurable) to prevent accidental LLM denial-of-service.
+
+Apparently this is how [Trigger.dev does it](https://x.com/mattaitken/status/2033928542975639785).
+And [Cloudflare](https://x.com/thomas_ankcorn/status/2033931057133748330).
 
 ## Quickstart
 
@@ -20,33 +24,43 @@ npm install agent-sql
 ```
 
 ```ts
-import { sanitise } from "agent-sql";
+import { agentSql } from "agent-sql";
 
-const sql = sanitise(`SELECT id, name FROM users WHERE status = 'active' LIMIT 10`, {
-  tables: { users: {} },
-  where: { table: "users", col: "tenant_id", value: "acme" },
-});
+const sql = agentSql(`SELECT * FROM msg`, "msg.user_id", 123);
 
 console.log(sql);
-// SELECT id, name
-// FROM users
-// WHERE (users.tenant_id = 'acme' AND status = 'active')
-// LIMIT 10
+// SELECT *
+// FROM msg
+// WHERE msg.user_id = 123
+// LIMIT 10000
 ```
 
-Or, more usefully:
+## Usage
+
+The simple approach above is enough to get started.
+But since no schema is provided, `JOIN`s will be blocked.
+A schema can be passed to `agentSql`, but typically you'll want to set it up once and re-use.
 
 ```ts
-import { sanitiserFactory } from "agent-sql";
+import { createAgentSql, defineSchema } from "agent-sql";
 import { tool } from "ai";
 import { sql } from "drizzle-orm";
 import { db } from "@/db";
 
-function makeSqlTool(orgId: string) {
+// Define your schema.
+// Only the tables listed will be permitted
+// Joins can only use the FKs defined here
+const schema = defineSchema({
+  user: { id },
+  msg: { userId: { user: "id" } },
+});
+
+function makeSqlTool(userId: string) {
   // Create a sanitiser function for this tenant
-  const sanitise = sanitiserFactory({
-    tables: {},
-    where: { table: "org", col: "id", value: orgId },
+  const agentSql = createAgentSql({
+    column: "user.id",
+    value: userId,
+    schema,
   });
 
   return tool({
@@ -55,7 +69,7 @@ function makeSqlTool(orgId: string) {
     execute: async ({ query }) => {
       // The LLM can pass any query it likes, we'll sanitise it if possible
       // and return helpful error messages if not
-      const sanitised = sanitise(query);
+      const sanitised = agentSql(query);
       // Now we can throw that straight at the db and be confident it'll only
       // return data from the specified tenant
       return db.execute(sql.raw(sanitised));

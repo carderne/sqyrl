@@ -23,7 +23,7 @@ const queries: Query[] = [
     expectPassSan: true,
   },
   {
-    name: "join-follows-graph",
+    name: "join-follows-joins",
     sql: `
     select *
     from organization
@@ -33,7 +33,7 @@ const queries: Query[] = [
     expectPassSan: true,
   },
   {
-    name: "join-doesnot-follow-graph",
+    name: "join-doesnot-follow-joins",
     sql: `
     select *
     from message

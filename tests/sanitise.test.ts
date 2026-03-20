@@ -1,13 +1,13 @@
 import { expect, test } from "vite-plus/test";
 
 import { parseSql } from "../src";
-import { sanitiseSql } from "../src/sanitise";
+import { addGuards } from "../src/guard";
 
 test("sanitise adds WHERE clause when none exists", () => {
   const ast = parseSql("SELECT foo FROM mytable").unwrap();
-  const result = sanitiseSql(ast, {
+  const result = addGuards(ast, {
     table: "mytable",
-    col: "tenant_id",
+    column: "tenant_id",
     value: "abc",
   }).unwrap();
 
@@ -28,9 +28,9 @@ test("sanitise adds WHERE clause when none exists", () => {
 
 test("sanitise prepends to existing WHERE as top-level AND", () => {
   const ast = parseSql("SELECT foo FROM mytable WHERE status = 'active'").unwrap();
-  const result = sanitiseSql(ast, {
+  const result = addGuards(ast, {
     table: "mytable",
-    col: "tenant_id",
+    column: "tenant_id",
     value: "abc",
   }).unwrap();
 

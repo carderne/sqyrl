@@ -3,26 +3,37 @@ import { SanitiseError } from "./errors";
 import { Err, Ok } from "./result";
 import type { Result } from "./result";
 
-export type TableDefs = ReturnType<typeof defineTables>;
+export type Schema = ReturnType<typeof defineSchema>;
 
-export function defineTables<
+export function defineSchema<
   T extends {
     [Table in keyof T]: Record<
       string,
       null | { [FK in keyof T & string]: { ft: FK; fc: keyof T[FK] & string } }[keyof T & string]
     >;
   },
->(tables: T) {
-  return tables;
+>(schema: T) {
+  return schema;
 }
 
-export function checkJoins(ast: SelectStatement, tables: TableDefs): Result<SelectStatement> {
-  if (!(ast.from.table.name in tables)) {
+export function checkJoins(
+  ast: SelectStatement,
+  schema: Schema | undefined,
+): Result<SelectStatement> {
+  if (schema === undefined) {
+    if (ast.joins.length > 0) {
+      return Err(new SanitiseError("No joins allowed when using simple API without schema."));
+    }
+    // The FROM table will be checked against the WhereGuard in `addWhereGuard`.
+    return Ok(ast);
+  }
+
+  if (!(ast.from.table.name in schema)) {
     return Err(new SanitiseError(`Table ${ast.from.table.name} is not allowed`));
   }
 
   for (const join of ast.joins) {
-    const joinSettings = tables[join.table.name];
+    const joinSettings = schema[join.table.name];
     if (joinSettings === undefined) {
       // The join table does not appear in the table definitions
       return Err(new SanitiseError(`Table ${join.table.name} is not allowed`));
@@ -64,7 +75,7 @@ export function checkJoins(ast: SelectStatement, tables: TableDefs): Result<Sele
     }
 
     if (joinTableCol === null) {
-      const foreignTableSettings = tables[foreign.table!];
+      const foreignTableSettings = schema[foreign.table!];
       if (foreignTableSettings === undefined) {
         return Err(new SanitiseError(`Table ${foreign.name} is not allowed`));
       }
