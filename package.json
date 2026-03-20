@@ -1,6 +1,6 @@
 {
   "name": "agent-sql",
-  "version": "0.1.2",
+  "version": "0.2.0",
   "description": "A starter for creating a TypeScript package.",
   "homepage": "https://github.com/carderne/agent-sql#readme",
   "bugs": {
