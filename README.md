@@ -35,7 +35,11 @@ console.log(sql);
 // LIMIT 10000
 ```
 
+`agent-sql` parses the SQL, enforces a mandatory equality filter on the given column as the outermost `AND` condition (so it cannot be short-circuited by agent-supplied `OR` clauses), and returns the sanitised SQL string.
+
 ## Usage
+
+### Define once, use many times
 
 The simple approach above is enough to get started.
 But since no schema is provided, `JOIN`s will be blocked.
@@ -78,7 +82,33 @@ function makeSqlTool(userId: string) {
 }
 ```
 
-`agent-sql` parses the SQL, enforces a mandatory equality filter on the given column as the outermost `AND` condition (so it cannot be short-circuited by agent-supplied `OR` clauses), and returns the sanitised SQL string.
+### It works with Drizzle
+
+If you're using Drizzle, you can skip the schema step and use the one you already have!
+
+Just pass it through, and `agentSql` will respect your schema.
+
+```ts
+import { defineSchemaFromDrizzle } from "agent-sql/drizzle";
+import * as drizzleSchema from "@/db/schema";
+
+const schema = defineSchemaFromDrizzle(drizzleSchema);
+
+// The rest as before...
+const agentSql = createAgentSql({
+  column: "user.id",
+  value: userId,
+  schema,
+});
+```
+
+You can also exclude tables if you don't want agents to see them:
+
+```ts
+const schema = defineSchemaFromDrizzle(drizzleSchema, {
+  exclude: ["api_keys"],
+});
+```
 
 ## Development
 
