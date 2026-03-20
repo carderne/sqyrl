@@ -6,6 +6,7 @@ import type { Result } from "./result";
 export type Schema = ReturnType<typeof defineSchema>;
 
 export function defineSchema<
+  // TODO this needs to also support specifying a schema/namespace
   T extends {
     [Table in keyof T]: Record<
       string,

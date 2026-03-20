@@ -16,10 +16,8 @@ test("agentSql with schema and limit", () => {
 });
 
 test("factory returns a function that injects a tenant guard into SQL", () => {
-  const query = createAgentSql({
-    column: "orders.tenant_id",
-    value: "t42",
-    schema: defineSchema({ orders: {} }),
+  const query = createAgentSql(defineSchema({ orders: { tenant_id: null } }), {
+    "orders.tenant_id": "t42",
   });
 
   expect(query("SELECT id FROM orders WHERE status = 'open'")).toBe(

@@ -1,11 +1,16 @@
-import { addGuards, type GuardVal } from "./guard";
+import {
+  applyGuards,
+  resolveGuards,
+  type OneOrTwoDots,
+  type GuardVal,
+  type SchemaGuardKeys,
+} from "./guard";
 import { checkJoins, defineSchema, type Schema } from "./joins";
-import { getQualifiedColumnFromString, type OneOrTwoDots } from "./namespec";
 import { outputSql } from "./output";
 import { parseSql } from "./parse";
 import { Ok, returnOrThrow, type Result } from "./result";
 
-export { parseSql, addGuards as sanitiseSql, outputSql, defineSchema };
+export { parseSql, applyGuards as sanitiseSql, outputSql, defineSchema };
 
 /*
  * A simple "README-friendly" API that doesn't require a schema to be provided
@@ -20,121 +25,75 @@ export function agentSql<S extends string>(
   value: GuardVal,
   { schema, limit }: { schema?: Schema; limit?: number } = {},
 ): string {
-  return privateAgentSql(sql, { column, value, schema, limit, throws: true });
+  const guards = { [column]: value };
+  return privateAgentSql(sql, { guards, schema, limit, throws: true });
 }
 
 /*
- * A factory function with a pile of overloads
+ * Factory function for agentSql re-use
  *
- * If `value` is provided it returns a function, otherwise a factory
- *
- * With value:
  * ```ts
- * const agentSql = createAgentSql({ ..., value: 123 });
+ * const schema = defineSchema({ orders: { tenant_id: null } });
+ * const agentSql = createAgentSql(schema, { "orders.tenant_id": "t42" });
  * const sql = agentSql("SELECT * ...");
  * ```
  *
- * Without value:
- * ```ts
- * const agentSqlFactory = createAgentSql({ ..., value: undefined})
- * const agentSql = agentSqlFactory(123);
- * const sql = agentSql("SELECT * ...");
- * ```
+ * Guard keys are type-checked against the schema: only `"table.column"`
+ * combinations that actually exist in the schema are accepted.
  *
  * If `throws: true` is passed (the default), it will throw on errors.
  * Otherwise it will return a Result type with an `ok` field as discriminator.
  */
-export function createAgentSql<S extends string>(_: {
-  column: S & OneOrTwoDots<S>;
-  value: GuardVal;
-  schema?: Schema;
-  limit?: number;
-  throws: false;
-}): (expr: string) => Result<string>;
-export function createAgentSql<S extends string>(_: {
-  column: S & OneOrTwoDots<S>;
-  value: GuardVal;
-  schema?: Schema;
-  limit?: number;
-  throws?: true;
-}): (expr: string) => string;
-export function createAgentSql<S extends string>(_: {
-  column: S & OneOrTwoDots<S>;
-  value?: undefined;
-  schema?: Schema;
-  limit?: number;
-  throws: false;
-}): (guardVal: GuardVal) => (expr: string) => Result<string>;
-export function createAgentSql<S extends string>(_: {
-  column: S & OneOrTwoDots<S>;
-  value?: undefined;
-  schema?: Schema;
-  limit?: number;
-  throws?: true;
-}): (guardVal: GuardVal) => (expr: string) => string;
-export function createAgentSql<S extends string>({
-  column,
-  schema,
-  value,
-  limit,
-  throws = true,
-}: {
-  column: S & OneOrTwoDots<S>;
-  value?: GuardVal;
-  schema?: Schema;
-  limit?: number;
-  throws?: boolean;
-}):
-  | ((expr: string) => Result<string> | string)
-  | ((guardVal: GuardVal) => (expr: string) => Result<string> | string) {
-  if (value !== undefined) {
-    return (expr: string) =>
-      throws
-        ? privateAgentSql(expr, { column, value, schema, limit, throws })
-        : privateAgentSql(expr, { column, value, schema, limit, throws });
-  }
-
-  function factory(guardVal: GuardVal) {
-    // TypeScript can't figure out the OneOrTwoDots -> OneOrTwoDots generic stuff
-    return throws
-      ? createAgentSql({ column: column as any, schema, value: guardVal, limit, throws })
-      : createAgentSql({ column: column as any, schema, value: guardVal, limit, throws });
-  }
-  return factory;
+export function createAgentSql<T extends Schema, S extends SchemaGuardKeys<T>>(
+  schema: T,
+  guards: Record<S, GuardVal>,
+  opts: { limit?: number; throws: false },
+): (expr: string) => Result<string>;
+export function createAgentSql<T extends Schema, S extends SchemaGuardKeys<T>>(
+  schema: T,
+  guards: Record<S, GuardVal>,
+  opts?: { limit?: number; throws?: true },
+): (expr: string) => string;
+export function createAgentSql<T extends Schema, S extends SchemaGuardKeys<T>>(
+  schema: T,
+  guards: Record<S, GuardVal>,
+  { limit, throws = true }: { limit?: number; throws?: boolean } = {},
+): (expr: string) => Result<string> | string {
+  return (expr: string) =>
+    throws
+      ? privateAgentSql(expr, { guards, schema, limit, throws })
+      : privateAgentSql(expr, { guards, schema, limit, throws });
 }
 
 function privateAgentSql(
   sql: string,
-  _: { column: string; value: GuardVal; schema?: Schema; limit?: number; throws: false },
+  _: { guards: Record<string, GuardVal>; schema?: Schema; limit?: number; throws: false },
 ): Result<string>;
 function privateAgentSql(
   sql: string,
-  _: { column: string; value: GuardVal; schema?: Schema; limit?: number; throws: true },
+  _: { guards: Record<string, GuardVal>; schema?: Schema; limit?: number; throws: true },
 ): string;
 function privateAgentSql(
   sql: string,
   {
-    column,
-    value,
+    guards: guardsRaw,
     schema,
     limit,
     throws,
   }: {
-    column: string;
-    value: GuardVal;
+    guards: Record<string, GuardVal>;
     schema?: Schema;
     limit?: number;
     throws: boolean;
   },
 ): Result<string> | string {
-  const guardCol = getQualifiedColumnFromString(column);
-  if (!guardCol.ok) throw guardCol.error;
+  const guards = resolveGuards(guardsRaw);
+  if (!guards.ok) throw guards.error;
   const ast = parseSql(sql);
   if (!ast.ok) return returnOrThrow(ast, throws);
   const ast2 = checkJoins(ast.data, schema);
   if (!ast2.ok) return returnOrThrow(ast2, throws);
-  const where = { ...guardCol.data, value };
-  const san = addGuards(ast2.data, where, limit);
+  const san = applyGuards(ast2.data, guards.data, limit);
   if (!san.ok) return returnOrThrow(san, throws);
   const res = outputSql(san.data);
   if (throws) return res;

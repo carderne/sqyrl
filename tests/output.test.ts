@@ -1,8 +1,8 @@
 import { expect, test } from "vite-plus/test";
 
 import { parseSql } from "../src";
+import { applyGuards } from "../src/guard";
 import { outputSql } from "../src/output";
-import { addGuards } from "../src/guard";
 
 test("round-trips a full statement", () => {
   const sql =
@@ -16,12 +16,14 @@ test("output after sanitise prepends tenant clause", () => {
   const ast = parseSql(
     "SELECT foo FROM bar JOIN myschema.mytable ON mytable.a = bar.a WHERE status = 'active'",
   ).unwrap();
-  const result = addGuards(ast, {
-    schema: "myschema",
-    table: "mytable",
-    column: "tenant_id",
-    value: "abc",
-  }).unwrap();
+  const result = applyGuards(ast, [
+    {
+      schema: "myschema",
+      table: "mytable",
+      column: "tenant_id",
+      value: "abc",
+    },
+  ]).unwrap();
   expect(outputSql(result)).toBe(
     `SELECT "foo" FROM "bar" INNER JOIN "myschema"."mytable" ON "mytable"."a" = "bar"."a" WHERE ("myschema"."mytable"."tenant_id" = 'abc' AND "status" = 'active') LIMIT 10000`,
   );

@@ -55,17 +55,14 @@ import { db } from "@/db";
 // Only the tables listed will be permitted
 // Joins can only use the FKs defined here
 const schema = defineSchema({
-  user: { id },
-  msg: { userId: { user: "id" } },
+  user: { id: null },
+  msg: { userId: { ft: "user", fc: "id" } },
 });
 
 function makeSqlTool(userId: string) {
   // Create a sanitiser function for this tenant
-  const agentSql = createAgentSql({
-    column: "user.id",
-    value: userId,
-    schema,
-  });
+  // Specify one or more column->value pairs that will be enforced
+  const agentSql = createAgentSql(schema, { "user.id": userId });
 
   return tool({
     description: "Run raw SQL against the DB",
@@ -95,11 +92,7 @@ import * as drizzleSchema from "@/db/schema";
 const schema = defineSchemaFromDrizzle(drizzleSchema);
 
 // The rest as before...
-const agentSql = createAgentSql({
-  column: "user.id",
-  value: userId,
-  schema,
-});
+const agentSql = createAgentSql(schema, { "user.id": userId });
 ```
 
 You can also exclude tables if you don't want agents to see them:

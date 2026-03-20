@@ -10,8 +10,7 @@ const schema = defineSchema({
   user: { id: null, organization_id: { ft: "organization", fc: "id" } },
   message: { user_id: { ft: "user", fc: "id" } },
 });
-const factory = createAgentSql({ column: "organization.id", schema, throws: false });
-const agentSql = factory(1);
+const agentSql = createAgentSql(schema, { "organization.id": 1 }, { throws: false });
 
 function dataIsSafe(object: unknown): boolean {
   return !JSON.stringify(object).includes(secret);

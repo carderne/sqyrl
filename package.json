@@ -2,6 +2,12 @@
   "name": "agent-sql",
   "version": "0.2.0",
   "description": "A starter for creating a TypeScript package.",
+  "keywords": [
+    "agent",
+    "ai",
+    "postgres",
+    "sql"
+  ],
   "homepage": "https://github.com/carderne/agent-sql#readme",
   "bugs": {
     "url": "https://github.com/carderne/agent-sql/issues"
