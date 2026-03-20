@@ -10,7 +10,7 @@ SELECT
   table1.bar, -- also fully qualified
   table1.baz as qux, -- and renames
   table1.*  -- no comma on last entry
-FROM optional_schema.table1 AS fo -- column entries can also have schema, "AS" is optional
+FROM optional_schema.table1
 LIMIT 10;
   `.trim();
   const ast = parseSql(sql).unwrap();
@@ -31,7 +31,6 @@ LIMIT 10;
         type: "table_ref",
         schema: "optional_schema",
         name: "table1",
-        alias: { type: "alias", name: "fo" },
       },
     },
     joins: [],
@@ -61,29 +60,9 @@ test("parses simple select without limit", () => {
   });
 });
 
-test("parses table with implicit alias", () => {
-  const ast = parseSql("SELECT a FROM schema1.tbl t").unwrap();
-  expect(ast).toEqual({
-    type: "select",
-    distinct: null,
-    columns: [{ type: "column", expr: colExpr("a") }],
-    from: {
-      type: "select_from",
-      table: {
-        type: "table_ref",
-        schema: "schema1",
-        name: "tbl",
-        alias: { type: "alias", name: "t" },
-      },
-    },
-    joins: [],
-    where: null,
-    groupBy: null,
-    having: null,
-    orderBy: null,
-    limit: null,
-    offset: null,
-  });
+test("rejects table with implicit alias", () => {
+  const result = parseSql("SELECT a FROM schema1.tbl t");
+  expect(result.ok).toBe(false);
 });
 
 test("parses trailing semicolon as optional", () => {

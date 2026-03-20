@@ -270,7 +270,6 @@ export interface TableRef {
   readonly type: "table_ref";
   schema?: string;
   name: string;
-  alias?: Alias;
 }
 
 export interface TableName {

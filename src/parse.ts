@@ -42,7 +42,7 @@ import type {
   WhereUnaryMinus,
   WhereValue,
 } from "./ast";
-import { ParseError } from "./errors";
+import { ParseError, SanitiseError } from "./errors";
 import { Err, Ok, type Result } from "./result";
 import grammar, { type SQLSemantics } from "./sql.ohm-bundle";
 
@@ -198,22 +198,12 @@ semantics.addOperation<ASTNode>("toAST()", {
     } satisfies ColumnExpr as ASTNode;
   },
 
-  TableRef_aliased(tableName, _as, alias) {
-    const tn = tableName.toAST() as TableName;
-    return {
-      type: "table_ref",
-      ...tn,
-      alias: { type: "alias", name: alias.toAST() as string } satisfies Alias,
-    } satisfies TableRef as ASTNode;
+  TableRef_aliased(_tableName, _as, _alias) {
+    throw new SanitiseError("Table aliases are not supported, rewrite your query without it");
   },
 
-  TableRef_implicitAlias(tableName, alias) {
-    const tn = tableName.toAST() as TableName;
-    return {
-      type: "table_ref",
-      ...tn,
-      alias: { type: "alias", name: alias.toAST() as string } satisfies Alias,
-    } satisfies TableRef as ASTNode;
+  TableRef_implicitAlias(_tableName, _alias) {
+    throw new SanitiseError("Table aliases are not supported, rewrite your query without it");
   },
 
   TableRef_plain(tableName) {
@@ -754,5 +744,12 @@ export function parseSql(expr: string): Result<SelectStatement> {
   if (matchResult.failed()) {
     return Err(new ParseError(matchResult.message));
   }
-  return Ok(semantics(matchResult).toAST() as SelectStatement);
+  try {
+    return Ok(semantics(matchResult).toAST() as SelectStatement);
+  } catch (e) {
+    if (e instanceof SanitiseError) {
+      return Err(e);
+    }
+    throw e;
+  }
 }

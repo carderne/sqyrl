@@ -20,10 +20,8 @@ export interface WhereGuard {
  * Sanitises the supplied Select statement by adding a WHERE clause e.g.
  * WHERE schema.table.col = 'value'
  */
-export function sanitiseSql(
-  ast: SelectStatement,
-  { schema, table, col, value }: WhereGuard,
-): Result<SelectStatement> {
+export function sanitiseSql(ast: SelectStatement, guard: WhereGuard): Result<SelectStatement> {
+  const { schema, table, col, value } = guard;
   // First check that the FROM or JOIN clauses include the required table
   const tableRef: TableRef = { type: "table_ref", schema, name: table };
   const hasNeededTable = checkIfTableRefExists(ast, tableRef);
@@ -73,6 +71,6 @@ function checkIfTableRefExists(ast: SelectStatement, tableRef: TableRef): boolea
   );
 }
 
-export function tableEquals(a: TableRef, b: TableRef): boolean {
+function tableEquals(a: TableRef, b: TableRef): boolean {
   return a.schema == b.schema && a.name == b.name;
 }

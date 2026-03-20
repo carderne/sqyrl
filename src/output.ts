@@ -202,9 +202,9 @@ function handleOrderByItem(node: OrderByItem): string {
 }
 
 export function handleTableRef(node: TableRef): string {
-  const { schema, name, alias } = node;
+  const { schema, name } = node;
   const schemaPref = schema ? `"${schema}".` : "";
-  return `${schemaPref}"${name}" ${r(alias)}`;
+  return `${schemaPref}"${name}"`;
 }
 
 function handleWhereRoot(node: WhereRoot): string {

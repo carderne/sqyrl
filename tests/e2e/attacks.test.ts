@@ -43,6 +43,15 @@ const queries: Query[] = [
     `,
     expectPassSan: true,
   },
+  {
+    name: "table-alias-bypass",
+    sql: `
+    select * from organization as o
+    join "user" on "user".organization_id = organization.id
+    join message on message.user_id = "user".id
+    `,
+    expectPassSan: false,
+  },
 ];
 
 const singleQuery: Query = {

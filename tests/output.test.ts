@@ -6,15 +6,15 @@ import { sanitiseSql } from "../src/sanitise";
 
 test("round-trips a full statement", () => {
   const sql =
-    "SELECT *, foo, t.bar, t.baz AS qux, t.* FROM myschema.mytable AS t WHERE status = 'active' LIMIT 10";
+    "SELECT *, foo, mytable.bar, mytable.baz AS qux, mytable.* FROM myschema.mytable WHERE status = 'active' LIMIT 10";
   expect(outputSql(parseSql(sql).unwrap())).toBe(
-    `SELECT *, "foo", "t"."bar", "t"."baz" AS qux, t.* FROM "myschema"."mytable" AS t WHERE "status" = 'active' LIMIT 10`,
+    `SELECT *, "foo", "mytable"."bar", "mytable"."baz" AS qux, mytable.* FROM "myschema"."mytable" WHERE "status" = 'active' LIMIT 10`,
   );
 });
 
 test("output after sanitise prepends tenant clause", () => {
   const ast = parseSql(
-    "SELECT foo FROM bar JOIN myschema.mytable mt ON mt.a = bar.a WHERE status = 'active'",
+    "SELECT foo FROM bar JOIN myschema.mytable ON mytable.a = bar.a WHERE status = 'active'",
   ).unwrap();
   const result = sanitiseSql(ast, {
     schema: "myschema",
@@ -23,7 +23,7 @@ test("output after sanitise prepends tenant clause", () => {
     value: "abc",
   }).unwrap();
   expect(outputSql(result)).toBe(
-    `SELECT "foo" FROM "bar" INNER JOIN "myschema"."mytable" AS mt ON "mt"."a" = "bar"."a" WHERE ("myschema"."mytable"."tenant_id" = 'abc' AND "status" = 'active')`,
+    `SELECT "foo" FROM "bar" INNER JOIN "myschema"."mytable" ON "mytable"."a" = "bar"."a" WHERE ("myschema"."mytable"."tenant_id" = 'abc' AND "status" = 'active')`,
   );
 });
 

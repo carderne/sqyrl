@@ -68,7 +68,7 @@ Tracking SQL feature coverage in `src/sql.ohm` / `src/ast.ts`.
 
 - [x] Simple table reference
 - [x] Schema-qualified table (`schema.table`)
-- [x] Table alias (`AS` and implicit)
+- [ ] Table alias (`AS` and implicit)
 - [ ] Multiple tables (comma-separated, implicit cross join)
 - [ ] Subquery in FROM: `(SELECT …) AS alias`
 - [ ] Lateral subquery: `LATERAL (…) AS alias`
