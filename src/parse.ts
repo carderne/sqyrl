@@ -126,7 +126,6 @@ semantics.addOperation<ASTNode>("toAST()", {
 
   ColumnEntry_aliased(expr, _as, alias) {
     if (alias.sourceString.startsWith('"')) {
-      // TODO replace all the throws in this file
       throw new SanitiseError("Quoted column aliases are not supported");
     }
     return {

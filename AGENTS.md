@@ -37,4 +37,4 @@ Vite+ automatically detects and wraps the underlying package manager such as pnp
 
 ## Useful scripts
 
-- Run `vp run gen:types` any time you edit src/sql.ohm.
+- Run `vp run ohm` any time you edit src/sql.ohm.

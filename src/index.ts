@@ -1,4 +1,5 @@
 import { checkFunctions, DEFAULT_DB, type DbType } from "./functions";
+import { insertNeededGuardJoins } from "./graph";
 import {
   applyGuards,
   resolveGuards,
@@ -28,12 +29,14 @@ export function agentSql<S extends string>(
   value: GuardVal,
   {
     schema,
+    autoJoin = true,
     limit = DEFAULT_LIMIT,
     pretty = false,
     db = DEFAULT_DB,
     allowExtraFunctions = [],
   }: {
     schema?: Schema;
+    autoJoin?: boolean;
     limit?: number;
     pretty?: boolean;
     db?: DbType;
@@ -44,6 +47,7 @@ export function agentSql<S extends string>(
   return privateAgentSql(sql, {
     guards,
     schema,
+    autoJoin,
     limit,
     pretty,
     db,
@@ -71,6 +75,7 @@ export function createAgentSql<T extends Schema, S extends SchemaGuardKeys<T>>(
   schema: T,
   guards: Record<S, GuardVal>,
   opts: {
+    autoJoin?: boolean;
     limit?: number;
     pretty?: boolean;
     throws: false;
@@ -82,6 +87,7 @@ export function createAgentSql<T extends Schema, S extends SchemaGuardKeys<T>>(
   schema: T,
   guards: Record<S, GuardVal>,
   opts?: {
+    autoJoin?: boolean;
     limit?: number;
     pretty?: boolean;
     throws?: true;
@@ -93,12 +99,14 @@ export function createAgentSql<T extends Schema, S extends SchemaGuardKeys<T>>(
   schema: T,
   guards: Record<S, GuardVal>,
   {
+    autoJoin = true,
     limit = DEFAULT_LIMIT,
     pretty = false,
     db = DEFAULT_DB,
     allowExtraFunctions = [],
     throws = true,
   }: {
+    autoJoin?: boolean;
     limit?: number;
     pretty?: boolean;
     throws?: boolean;
@@ -108,8 +116,26 @@ export function createAgentSql<T extends Schema, S extends SchemaGuardKeys<T>>(
 ): (expr: string) => Result<string> | string {
   return (expr: string) =>
     throws
-      ? privateAgentSql(expr, { guards, schema, limit, pretty, db, allowExtraFunctions, throws })
-      : privateAgentSql(expr, { guards, schema, limit, pretty, db, allowExtraFunctions, throws });
+      ? privateAgentSql(expr, {
+          guards,
+          schema,
+          autoJoin,
+          limit,
+          pretty,
+          db,
+          allowExtraFunctions,
+          throws,
+        })
+      : privateAgentSql(expr, {
+          guards,
+          schema,
+          autoJoin,
+          limit,
+          pretty,
+          db,
+          allowExtraFunctions,
+          throws,
+        });
 }
 
 function privateAgentSql(
@@ -117,6 +143,7 @@ function privateAgentSql(
   _: {
     guards: Record<string, GuardVal>;
     schema: Schema | undefined;
+    autoJoin: boolean;
     limit: number;
     pretty: boolean;
     db: DbType;
@@ -129,6 +156,7 @@ function privateAgentSql(
   _: {
     guards: Record<string, GuardVal>;
     schema: Schema | undefined;
+    autoJoin: boolean;
     limit: number;
     pretty: boolean;
     db: DbType;
@@ -141,6 +169,7 @@ function privateAgentSql(
   {
     guards: guardsRaw,
     schema,
+    autoJoin,
     limit,
     pretty,
     db,
@@ -149,6 +178,7 @@ function privateAgentSql(
   }: {
     guards: Record<string, GuardVal>;
     schema: Schema | undefined;
+    autoJoin: boolean;
     limit: number;
     pretty: boolean;
     db: DbType;
@@ -164,7 +194,9 @@ function privateAgentSql(
   if (!ast2.ok) return returnOrThrow(ast2, throws);
   const ast3 = checkFunctions(ast2.data, db, allowExtraFunctions);
   if (!ast3.ok) return returnOrThrow(ast3, throws);
-  const san = applyGuards(ast3.data, guards.data, limit);
+  const ast4 = insertNeededGuardJoins(ast3.data, schema, guards.data, autoJoin);
+  if (!ast4.ok) return returnOrThrow(ast4, throws);
+  const san = applyGuards(ast4.data, guards.data, limit);
   if (!san.ok) return returnOrThrow(san, throws);
   const res = outputSql(san.data, pretty);
   if (throws) return res;

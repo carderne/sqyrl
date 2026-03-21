@@ -91,7 +91,7 @@ const queries: Query[] = [
     sql: `
     select * from message
     `,
-    expectPassSan: false,
+    expectPassSan: true,
   },
   {
     name: "using-join-bypass",

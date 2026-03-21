@@ -36,7 +36,7 @@
     "test": "vp test",
     "check": "vp check",
     "prepublishOnly": "vp run build",
-    "gen:types": "ohm generateBundles --withTypes --esm 'src/sql.ohm'",
+    "ohm": "ohm generateBundles --withTypes --esm 'src/sql.ohm'",
     "script": "vp exec tsx"
   },
   "dependencies": {
