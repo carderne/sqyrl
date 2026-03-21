@@ -8,7 +8,7 @@ import {
   type SchemaGuardKeys,
   DEFAULT_LIMIT,
 } from "./guard";
-import { checkJoins, defineSchema, type Schema } from "./joins";
+import { defineSchema, validateJoins, type Schema } from "./joins";
 import { outputSql } from "./output";
 import { parseSql } from "./parse";
 import { Ok, returnOrThrow, type Result } from "./result";
@@ -190,7 +190,7 @@ function privateAgentSql(
   if (!guards.ok) throw guards.error;
   const ast = parseSql(sql);
   if (!ast.ok) return returnOrThrow(ast, throws);
-  const ast2 = checkJoins(ast.data, schema);
+  const ast2 = validateJoins(ast.data, schema);
   if (!ast2.ok) return returnOrThrow(ast2, throws);
   const ast3 = checkFunctions(ast2.data, db, allowExtraFunctions);
   if (!ast3.ok) return returnOrThrow(ast3, throws);
