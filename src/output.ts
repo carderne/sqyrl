@@ -40,15 +40,19 @@ import type {
 } from "./ast";
 import { unreachable } from "./utils";
 
-export function outputSql(ast: SelectStatement): string {
-  return normaliseWhitespace(r(ast));
+export function outputSql(ast: SelectStatement, pretty: boolean = false): string {
+  const res = r(ast, pretty);
+  if (pretty) {
+    return res;
+  }
+  return normaliseWhitespace(res);
 }
 
 function normaliseWhitespace(s: string): string {
   return s.replace(/\s+/g, " ").trim();
 }
 
-function r(node: ASTNode | Terminal): string {
+function r(node: ASTNode | Terminal, pretty: boolean = false): string {
   if (node === null || node === undefined) {
     return "";
   }
@@ -63,14 +67,14 @@ function r(node: ASTNode | Terminal): string {
 
   switch (node.type) {
     case "select":
-      return handleSelect(node);
+      return handleSelect(node, pretty);
     case "select_from":
       return handleSelectFrom(node);
     case "join":
-      return handleJoin(node);
+      return handleJoin(node, pretty);
     case "join_on":
     case "join_using":
-      return handleJoinCondition(node);
+      return handleJoinCondition(node, pretty);
     case "table_ref":
       return handleTableRef(node);
     case "limit":
@@ -126,7 +130,7 @@ function r(node: ASTNode | Terminal): string {
     case "where_value":
       return handleWhereValue(node as Extract<WhereValue, { type: "where_value" }>);
     case "column":
-      return handleColumn(node);
+      return handleColumn(node, pretty);
     case "column_expr":
       return handleColumnExpr(node);
     case "column_ref":
@@ -140,14 +144,27 @@ function r(node: ASTNode | Terminal): string {
   }
 }
 
-function mapR<T extends ASTNode>(t: T[]): string {
-  return t.map((n) => r(n).trim()).join(", ");
+function rMap<T extends ASTNode>(t: T[], pretty: boolean = false, sep: string = ", "): string {
+  return t.map((n) => r(n, pretty).trimEnd()).join(sep);
 }
 
-function handleSelect(node: SelectStatement): string {
-  const joins = node.joins.map((j) => r(j)).join(" ");
+function handleSelect(node: SelectStatement, pretty: boolean): string {
   const distinctStr = node.distinct ? `${r(node.distinct)} ` : "";
-  return `SELECT ${distinctStr}${mapR(node.columns)} ${r(node.from)} ${joins} ${r(node.where)} ${r(node.groupBy)} ${r(node.having)} ${r(node.orderBy)} ${r(node.limit)} ${r(node.offset)}`;
+  const colSep = pretty ? ",\n" : ", ";
+  const joinSep = pretty ? "\n" : " ";
+  const joiner = pretty ? "\n" : " ";
+  return [
+    "SELECT",
+    `${distinctStr}${rMap(node.columns, pretty, colSep)}`,
+    r(node.from),
+    rMap(node.joins, pretty, joinSep),
+    r(node.where),
+    r(node.groupBy),
+    r(node.having),
+    r(node.orderBy),
+    r(node.limit),
+    r(node.offset),
+  ].join(joiner);
 }
 
 function handleDistinct(_node: Distinct): string {
@@ -155,14 +172,14 @@ function handleDistinct(_node: Distinct): string {
 }
 
 function handleDistinctOn(node: DistinctOn): string {
-  return `DISTINCT ON (${mapR(node.columns)})`;
+  return `DISTINCT ON (${rMap(node.columns)})`;
 }
 
 function handleSelectFrom(node: SelectFrom): string {
   return `FROM ${r(node.table)}`;
 }
 
-function handleJoin(node: JoinClause): string {
+function handleJoin(node: JoinClause, pretty: boolean): string {
   const typeStr: Record<string, string> = {
     inner: "INNER JOIN",
     inner_outer: "INNER OUTER JOIN",
@@ -175,15 +192,16 @@ function handleJoin(node: JoinClause): string {
     cross: "CROSS JOIN",
     natural: "NATURAL JOIN",
   };
-  const cond = node.condition ? ` ${handleJoinCondition(node.condition)}` : "";
+  const cond = node.condition ? `${handleJoinCondition(node.condition, pretty)}` : "";
   return `${typeStr[node.joinType]} ${r(node.table)}${cond}`;
 }
 
-function handleJoinCondition(node: JoinCondition): string {
+function handleJoinCondition(node: JoinCondition, pretty: boolean): string {
+  const prefix = pretty ? "\n  " : " ";
   if (node.type === "join_on") {
-    return `ON ${r(node.expr)}`;
+    return `${prefix}ON ${r(node.expr)}`;
   }
-  return `USING (${node.columns.join(", ")})`;
+  return `${prefix}USING (${node.columns.join(", ")})`;
 }
 
 function handleLimit(node: LimitClause): string {
@@ -195,7 +213,7 @@ function handleOffset(node: OffsetClause): string {
 }
 
 function handleGroupBy(node: GroupByClause): string {
-  return `GROUP BY ${mapR(node.items)}`;
+  return `GROUP BY ${rMap(node.items)}`;
 }
 
 function handleHaving(node: HavingClause): string {
@@ -203,7 +221,7 @@ function handleHaving(node: HavingClause): string {
 }
 
 function handleOrderBy(node: OrderByClause): string {
-  return `ORDER BY ${mapR(node.items)}`;
+  return `ORDER BY ${rMap(node.items)}`;
 }
 
 function handleOrderByItem(node: OrderByItem): string {
@@ -254,7 +272,7 @@ function handleWhereBetween(node: WhereBetween): string {
 }
 
 function handleWhereIn(node: WhereIn): string {
-  return `${r(node.expr)}${node.not ? " NOT" : ""} IN (${mapR(node.list)})`;
+  return `${r(node.expr)}${node.not ? " NOT" : ""} IN (${rMap(node.list)})`;
 }
 
 function handleCaseExpr(node: CaseExpr): string {
@@ -321,8 +339,9 @@ function handleWhereValue(node: Extract<WhereValue, { type: "where_value" }>): s
   }
 }
 
-function handleColumn(node: Column): string {
-  return `${r(node.expr)} ${r(node.alias)}`;
+function handleColumn(node: Column, pretty: boolean): string {
+  const space = pretty ? "  " : "";
+  return `${space}${r(node.expr)} ${r(node.alias)}`;
 }
 
 function handleAlias(node: Alias): string {
@@ -340,7 +359,7 @@ function handleFuncCall(node: FuncCall): string {
   const { name, args } = node;
   if (args.kind === "wildcard") return `${name}(*)`;
   const distinctStr = args.distinct ? "DISTINCT " : "";
-  return `${name}(${distinctStr}${mapR(args.args)})`;
+  return `${name}(${distinctStr}${rMap(args.args)})`;
 }
 
 function handleColumnExpr(node: ColumnExpr): string {

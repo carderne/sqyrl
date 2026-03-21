@@ -58,7 +58,7 @@ export type SchemaGuardKeys<T> = {
 export function applyGuards(
   ast: SelectStatement,
   guards: WhereGuard[],
-  limit: number = DEFAULT_LIMIT,
+  limit: number,
 ): Result<SelectStatement> {
   const ast2 = addWhereGuard(ast, guards);
   if (!ast2.ok) return ast2;

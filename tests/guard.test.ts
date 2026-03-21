@@ -5,13 +5,17 @@ import { applyGuards } from "../src/guard";
 
 test("sanitise adds WHERE clause when none exists", () => {
   const ast = parseSql("SELECT foo FROM mytable").unwrap();
-  const result = applyGuards(ast, [
-    {
-      table: "mytable",
-      column: "tenant_id",
-      value: "abc",
-    },
-  ]).unwrap();
+  const result = applyGuards(
+    ast,
+    [
+      {
+        table: "mytable",
+        column: "tenant_id",
+        value: "abc",
+      },
+    ],
+    10000,
+  ).unwrap();
 
   expect(result.where).toEqual({
     type: "where_root",
@@ -30,13 +34,17 @@ test("sanitise adds WHERE clause when none exists", () => {
 
 test("sanitise prepends to existing WHERE as top-level AND", () => {
   const ast = parseSql("SELECT foo FROM mytable WHERE status = 'active'").unwrap();
-  const result = applyGuards(ast, [
-    {
-      table: "mytable",
-      column: "tenant_id",
-      value: "abc",
-    },
-  ]).unwrap();
+  const result = applyGuards(
+    ast,
+    [
+      {
+        table: "mytable",
+        column: "tenant_id",
+        value: "abc",
+      },
+    ],
+    10000,
+  ).unwrap();
 
   expect(result.where).toEqual({
     type: "where_root",
@@ -70,10 +78,14 @@ test("multiple guards are ANDed together", () => {
   const ast = parseSql(
     "SELECT o.id FROM orders JOIN users ON orders.user_id = uusers.id WHERE orders.total > 100",
   ).unwrap();
-  const result = applyGuards(ast, [
-    { table: "orders", column: "tenant_id", value: "t1" },
-    { table: "users", column: "org_id", value: 42 },
-  ]).unwrap();
+  const result = applyGuards(
+    ast,
+    [
+      { table: "orders", column: "tenant_id", value: "t1" },
+      { table: "users", column: "org_id", value: 42 },
+    ],
+    10000,
+  ).unwrap();
 
   // The two guards should be ANDed together, then ANDed with the original WHERE
   expect(result.where).toEqual({

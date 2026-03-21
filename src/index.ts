@@ -1,10 +1,11 @@
-import { checkFunctions, type DbType } from "./functions";
+import { checkFunctions, DEFAULT_DB, type DbType } from "./functions";
 import {
   applyGuards,
   resolveGuards,
   type OneOrTwoDots,
   type GuardVal,
   type SchemaGuardKeys,
+  DEFAULT_LIMIT,
 } from "./guard";
 import { checkJoins, defineSchema, type Schema } from "./joins";
 import { outputSql } from "./output";
@@ -27,13 +28,28 @@ export function agentSql<S extends string>(
   value: GuardVal,
   {
     schema,
-    limit,
-    db = "postgres",
+    limit = DEFAULT_LIMIT,
+    pretty = false,
+    db = DEFAULT_DB,
     allowExtraFunctions = [],
-  }: { schema?: Schema; limit?: number; db?: DbType; allowExtraFunctions?: string[] } = {},
+  }: {
+    schema?: Schema;
+    limit?: number;
+    pretty?: boolean;
+    db?: DbType;
+    allowExtraFunctions?: string[];
+  } = {},
 ): string {
   const guards = { [column]: value };
-  return privateAgentSql(sql, { guards, schema, limit, db, allowExtraFunctions, throws: true });
+  return privateAgentSql(sql, {
+    guards,
+    schema,
+    limit,
+    pretty,
+    db,
+    allowExtraFunctions,
+    throws: true,
+  });
 }
 
 /*
@@ -54,35 +70,55 @@ export function agentSql<S extends string>(
 export function createAgentSql<T extends Schema, S extends SchemaGuardKeys<T>>(
   schema: T,
   guards: Record<S, GuardVal>,
-  opts: { limit?: number; throws: false; db?: DbType; allowExtraFunctions?: string[] },
+  opts: {
+    limit?: number;
+    pretty?: boolean;
+    throws: false;
+    db?: DbType;
+    allowExtraFunctions?: string[];
+  },
 ): (expr: string) => Result<string>;
 export function createAgentSql<T extends Schema, S extends SchemaGuardKeys<T>>(
   schema: T,
   guards: Record<S, GuardVal>,
-  opts?: { limit?: number; throws?: true; db?: DbType; allowExtraFunctions?: string[] },
+  opts?: {
+    limit?: number;
+    pretty?: boolean;
+    throws?: true;
+    db?: DbType;
+    allowExtraFunctions?: string[];
+  },
 ): (expr: string) => string;
 export function createAgentSql<T extends Schema, S extends SchemaGuardKeys<T>>(
   schema: T,
   guards: Record<S, GuardVal>,
   {
-    limit,
-    throws = true,
-    db = "postgres",
+    limit = DEFAULT_LIMIT,
+    pretty = false,
+    db = DEFAULT_DB,
     allowExtraFunctions = [],
-  }: { limit?: number; throws?: boolean; db?: DbType; allowExtraFunctions?: string[] } = {},
+    throws = true,
+  }: {
+    limit?: number;
+    pretty?: boolean;
+    throws?: boolean;
+    db?: DbType;
+    allowExtraFunctions?: string[];
+  } = {},
 ): (expr: string) => Result<string> | string {
   return (expr: string) =>
     throws
-      ? privateAgentSql(expr, { guards, schema, limit, db, allowExtraFunctions, throws })
-      : privateAgentSql(expr, { guards, schema, limit, db, allowExtraFunctions, throws });
+      ? privateAgentSql(expr, { guards, schema, limit, pretty, db, allowExtraFunctions, throws })
+      : privateAgentSql(expr, { guards, schema, limit, pretty, db, allowExtraFunctions, throws });
 }
 
 function privateAgentSql(
   sql: string,
   _: {
     guards: Record<string, GuardVal>;
-    schema?: Schema;
-    limit?: number;
+    schema: Schema | undefined;
+    limit: number;
+    pretty: boolean;
     db: DbType;
     allowExtraFunctions: string[];
     throws: false;
@@ -92,8 +128,9 @@ function privateAgentSql(
   sql: string,
   _: {
     guards: Record<string, GuardVal>;
-    schema?: Schema;
-    limit?: number;
+    schema: Schema | undefined;
+    limit: number;
+    pretty: boolean;
     db: DbType;
     allowExtraFunctions: string[];
     throws: true;
@@ -105,13 +142,15 @@ function privateAgentSql(
     guards: guardsRaw,
     schema,
     limit,
+    pretty,
     db,
     allowExtraFunctions,
     throws,
   }: {
     guards: Record<string, GuardVal>;
-    schema?: Schema;
-    limit?: number;
+    schema: Schema | undefined;
+    limit: number;
+    pretty: boolean;
     db: DbType;
     allowExtraFunctions: string[];
     throws: boolean;
@@ -127,7 +166,7 @@ function privateAgentSql(
   if (!ast3.ok) return returnOrThrow(ast3, throws);
   const san = applyGuards(ast3.data, guards.data, limit);
   if (!san.ok) return returnOrThrow(san, throws);
-  const res = outputSql(san.data);
+  const res = outputSql(san.data, pretty);
   if (throws) return res;
   return Ok(res);
 }

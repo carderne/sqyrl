@@ -4,6 +4,8 @@ import { Err, Ok, type Result } from "./result";
 
 export type DbType = "postgres" | "pglite" | "sqlite";
 
+export const DEFAULT_DB = "postgres";
+
 /*
  * Standard SQL / common aggregate & scalar functions shared across all engines.
  */
