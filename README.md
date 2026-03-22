@@ -30,7 +30,7 @@ npm install agent-sql
 ```ts
 import { agentSql } from "agent-sql";
 
-const sql = agentSql(`SELECT * FROM msg`, "msg.tenant_id", 123);
+const sql = agentSql("SELECT * FROM msg", "msg.tenant_id", 123);
 
 console.log(sql);
 // SELECT *
@@ -41,30 +41,81 @@ console.log(sql);
 
 ## Usage
 
-### Define once, use many times
+### Define a schema
 
-The simple approach above is enough to get started.
-But since no schema is provided, `JOIN`s will be blocked.
-A schema can be passed to `agentSql`, but typically you'll want to set it up once and re-use.
+In the simple example above, all `JOIN`s will be blocked.
+For agent-sql to know what joins and tables permit, you need to define a schema.
+Heads up: if you use Drizzle, you can just [use your Drizzle schema](#integration-with-ai-sdk-and-drizzle).
 
 ```ts
 import { createAgentSql, defineSchema } from "agent-sql";
-import { tool } from "ai";
-import { sql } from "drizzle-orm";
-import { db } from "@/db";
 
 // Define your schema.
 // Only the tables listed will be permitted
 // Joins can only use the FKs defined here
 const schema = defineSchema({
-  user: { id: null },
-  msg: { userId: { ft: "user", fc: "id" } },
+  tenant: { id: null },
+  msg: { tenant_id: { ft: "tenant", fc: "id" } },
 });
 
-function makeSqlTool(userId: string) {
+// Use your schema from above
+// Specify 1+ column->value pairs that will be enforced
+const agentSql = createAgentSql(schema, { "tenant.id": 123 });
+
+// Now use it
+const sql = agentSql("SELECT * FROM msg");
+```
+
+Outputs:
+
+```sql
+SELECT
+  msg.*                        -- qualify the *
+FROM msg
+INNER JOIN tenant              -- add the needed join for the guard
+  ON tenant.id = msg.tenant_id -- use the schema to join correctly
+WHERE tenant.id = 123          -- apply the guard
+LIMIT 10000                    -- limit the rows
+```
+
+### Bad stuff is blocked
+
+The following query will be blocked (many times over).
+
+```sql
+SELECT
+    sneaky_func('./bad_file')      -- won't pass whitelist
+FROM secret
+JOIN random                        -- not an approved table
+  ON random.id = secret.id         -- not an approved FK pair
+JOIN danger                        -- disconnected from join graph
+  ON true                          -- not allowed
+WHERE true                         -- won't trick anyone
+```
+
+### Integration with AI SDK and Drizzle
+
+If you're using Drizzle, you can skip the schema step and use the one you already have!
+
+Just pass it through, and `agentSql` will respect your schema.
+
+```ts
+import { tool } from "ai";
+import { sql } from "drizzle-orm";
+
+import { createAgentSql } from "agent-sql";
+import { defineSchemaFromDrizzle } from "agent-sql/drizzle";
+
+import { db } from "@/db";
+import * as drizzleSchema from "@/db/schema";
+
+// No need to re-enter your schema, we'll pull it in from Drizzle
+const schema = defineSchemaFromDrizzle(drizzleSchema);
+
+function makeSqlTool(tenantId: string) {
   // Create a sanitiser function for this tenant
   // Specify one or more column->value pairs that will be enforced
-  const agentSql = createAgentSql(schema, { "user.id": userId });
+  const agentSql = createAgentSql(schema, { "tenant.id": tenantId });
 
   return tool({
     description: "Run raw SQL against the DB",
@@ -72,34 +123,22 @@ function makeSqlTool(userId: string) {
     execute: async ({ query }) => {
       // The LLM can pass any query it likes, we'll sanitise it if possible
       // and return helpful error messages if not
-      const sanitised = agentSql(query);
+      const sql = agentSql(query);
       // Now we can throw that straight at the db and be confident it'll only
       // return data from the specified tenant
-      return db.execute(sql.raw(sanitised));
+      return db.execute(sql.raw(sql));
     },
   });
 }
 ```
 
-### It works with Drizzle
-
-If you're using Drizzle, you can skip the schema step and use the one you already have!
-
-Just pass it through, and `agentSql` will respect your schema.
-
-```ts
-import { defineSchemaFromDrizzle } from "agent-sql/drizzle";
-import * as drizzleSchema from "@/db/schema";
-
-const schema = defineSchemaFromDrizzle(drizzleSchema);
-
-// The rest as before...
-const agentSql = createAgentSql(schema, { "user.id": userId });
-```
+### If you don't want your whole Drizzle schema available
 
 You can also exclude tables if you don't want agents to see them:
 
 ```ts
+import { defineSchemaFromDrizzle } from "agent-sql/drizzle";
+
 const schema = defineSchemaFromDrizzle(drizzleSchema, {
   exclude: ["api_keys"],
 });

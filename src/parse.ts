@@ -828,7 +828,12 @@ semantics.addOperation<ASTNode>("toAST()", {
 export function parseSql(expr: string): Result<SelectStatement> {
   const matchResult = grammar.match(expr);
   if (matchResult.failed()) {
-    return Err(new ParseError(matchResult.message));
+    const [message] = matchResult.message.split("\nExpected");
+    return Err(
+      new ParseError(
+        `Got invalid SQL. Some language features are deliberately disabled. Re-write your query without them.\n${message}`,
+      ),
+    );
   }
   try {
     return Ok(semantics(matchResult).toAST() as SelectStatement);
