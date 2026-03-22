@@ -1,4 +1,7 @@
-# agent-sql
+<p align="center">
+  <img src="https://cdn.jsdelivr.net/gh/carderne/agent-sql@main/docs/agent-sql.png" width="40" />
+</p>
+<h1 align="center">agent-sql</h1>
 
 Sanitise agent-written SQL for multi-tenant DBs.
 
