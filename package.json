@@ -1,6 +1,6 @@
 {
   "name": "agent-sql",
-  "version": "0.3.5",
+  "version": "0.4.0",
   "description": "A starter for creating a TypeScript package.",
   "keywords": [
     "agent",
