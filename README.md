@@ -3,12 +3,21 @@
 </p>
 <h1 align="center">agent-sql</h1>
 
-Sanitise agent-written SQL for multi-tenant DBs.
+This exists to solve these problems:
 
-You provide a tenant ID, and the agent supplies the query.
+1. Agents prefer code to tools
+2. Security is important
+3. RLS is a pain to get right
+4. [LLMs (and humans) are dumb](https://x.com/BenjDicken/status/2035821666170008046)
+
+Rather than write hundreds of tools for your deployed agent, just give it one: `executeQuery`.
+Then let `agent-sql` sanitise those queries to stop it from doing anything dangerous (or dumb).
+Primarily targeting deployed agents, but you should get your coding harness to use it too.
 
 Apparently this is how [Trigger.dev does it](https://x.com/mattaitken/status/2033928542975639785).
 And [Cloudflare](https://x.com/thomas_ankcorn/status/2033931057133748330).
+
+You can try it out live (and try to hack it) here: [sql.rdrn.me](https://sql.rdrn.me)
 
 ## How it works
 
@@ -22,11 +31,11 @@ agent-sql works by fully parsing the supplied SQL query into an AST and transfor
 - **`JOIN`s added:** if needed to reach the guard tenant tables (save on tokens).
 - **No sneaky joins:** no `join secrets on true`. We have your back.
 
-## What's next
+## Coming soon
 
-- [ ] Support `INSERT`, `UPDATE`, even `DROP TABLE` as user-configurable options
+- [ ] Configurable support for `INSERT`, `UPDATE`, even `DROP TABLE`
 - [ ] Support CTEs, subqueries and more, once they can be fully hardened
-- [ ] Skills for common harnesses
+- [ ] Plugins/hooks for common harnesses
 
 ## Quickstart
 
